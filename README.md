@@ -85,6 +85,10 @@ modu/
 
 `index.html`을 직접 열거나 저장소에서 `python -m http.server 8000` 실행 후 `http://localhost:8000`에 접속합니다. GitHub Pages 사용 시 저장소 설정에서 `main` 브랜치의 루트 폴더를 게시 대상으로 지정합니다.
 
+Pages 주소는 `https://moduaiskill.github.io/modu/`입니다. 루트의 `.nojekyll` 파일을 유지해야 합니다. 이 사이트는 완성된 HTML을 그대로 게시하며, Jekyll을 실행하면 스킬 문서의 `{{…}}` 예시를 Liquid 템플릿으로 해석해 빌드가 실패할 수 있습니다. Markdown 파일도 HTML 변환 없이 원문으로 제공됩니다.
+
+SNS 공유 이미지는 [assets/social/README.md](assets/social/README.md)에 정리했습니다. `index.html`의 Open Graph와 Twitter 카드에 가로형 이미지를 연결했습니다. 배포 주소를 변경하면 `og:url`, `og:image`, `twitter:image`의 절대 주소도 함께 수정합니다.
+
 ## 확인한 범위
 
 Chrome에서 검색, 분야 필터, 상세 안내, ZIP 링크, 사용법 탭의 키보드 이동, 복사, 모바일 메뉴를 확인했습니다. 화면 폭 320·390·768·1024·1440px에서 가로 넘침이 없고, 소개 페이지의 로컬 링크와 미리보기 이미지가 연결됩니다.
