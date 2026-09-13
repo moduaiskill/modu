@@ -83,9 +83,9 @@ modu/
 
 스킬 폴더를 수정한 뒤에는 `python scripts/package_skills.py`로 ZIP 배포본을 갱신합니다. 개인정보를 채운 `organization-profile.md`는 패키지와 Git에서 제외합니다. 홈페이지 자체는 외부 라이브러리를 쓰지 않지만, 일부 기존 시연 HTML은 폰트와 차트 라이브러리를 CDN에서 불러옵니다.
 
-`index.html`을 직접 열거나 저장소에서 `python -m http.server 8000` 실행 후 `http://localhost:8000`에 접속합니다. GitHub Pages 사용 시 저장소 설정에서 `main` 브랜치의 루트 폴더를 게시 대상으로 지정합니다.
+`index.html`을 직접 열거나 저장소에서 `python -m http.server 8000` 실행 후 `http://localhost:8000`에 접속합니다. GitHub Pages 사용 시 저장소의 Settings → Pages → Build and deployment → Source를 **GitHub Actions**로 지정합니다. `.github/workflows/pages.yml`이 `main` 푸시 시 추적 중인 파일을 그대로 게시합니다.
 
-Pages 주소는 `https://moduaiskill.github.io/modu/`입니다. 루트의 `.nojekyll` 파일을 유지해야 합니다. 이 사이트는 완성된 HTML을 그대로 게시하며, Jekyll을 실행하면 스킬 문서의 `{{…}}` 예시를 Liquid 템플릿으로 해석해 빌드가 실패할 수 있습니다. Markdown 파일도 HTML 변환 없이 원문으로 제공됩니다.
+Pages 주소는 `https://moduaiskill.github.io/modu/`입니다. 이 사이트는 완성된 HTML을 그대로 게시하며, Jekyll을 실행하면 스킬 문서의 `{{…}}` 예시를 Liquid 템플릿으로 해석해 빌드가 실패합니다. `.nojekyll` 추가 후에도 기존 자동 빌드가 Jekyll을 실행하는 것을 확인해, Jekyll 단계가 없는 명시적 Actions 워크플로로 전환했습니다. Markdown 파일도 HTML 변환 없이 원문으로 제공됩니다. `.nojekyll`은 정적 사이트임을 나타내는 파일로 유지합니다.
 
 SNS 공유 이미지는 [assets/social/README.md](assets/social/README.md)에 정리했습니다. `index.html`의 Open Graph와 Twitter 카드에 가로형 이미지를 연결했습니다. 배포 주소를 변경하면 `og:url`, `og:image`, `twitter:image`의 절대 주소도 함께 수정합니다.
 
