@@ -1,0 +1,9 @@
+.DS_Store
+Thumbs.db
+__pycache__/
+node_modules/
+.env
+.env.*
+.artifacts/
+skill 결과물_참고용/
+**/organization-profile.md

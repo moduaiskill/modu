@@ -1,0 +1,777 @@
+<meta charset="utf-8">
+<title>{{사업명}} 제안서</title>
+<style>
+  /* ================================================================
+     공공 입찰 제안서 표준 양식 (A4 인쇄용 · 관공서 개조식)
+     - 지면 : A4, 여백 상25 좌우20 하18mm, 본문 폭 170mm
+     - 본문 : 함초롬돋움 12.5pt / 줄간격 1.6
+     - 대제목 : 로마자 박스(11.9mm) + 상단 액센트 띠(2.1mm) + 그라데이션 띠(11.4mm)
+     - 표 : 검정 실선, 머리행·합계행 회색(#e5e5e5), 줄무늬 없음
+     치수는 한글(HWP) 관공서 제안서 서식을 실측해 옮긴 값이다. 이유 없이 바꾸지 말 것.
+     ================================================================ */
+  /* 색을 기관 브랜드로 바꾸려면 아래 :root 변수 6개만 고치면 문서 전체가 따라간다.
+     (--navy 대제목·강조 / --accent 대제목 상단 초록 / --band 대제목 상단 하늘
+      / --cover-rule 표지 굵은 선 / --cover-y·g·b 표지 3색 띠)
+     인쇄 대비를 위해 --navy 는 흰 글씨가 얹히는 진한 색으로 둘 것. */
+  :root{
+    --navy:#00468c;           /* 대제목 박스 · 그라데이션 시작 */
+    --accent:#99cc00;         /* 대제목 상단 좌측 초록 */
+    --band:#65bbfa;           /* 대제목 상단 우측 하늘 */
+    --cover-rule:#303192;     /* 표지 굵은 선 */
+    --cover-y:#f7cb0c; --cover-g:#92c73e; --cover-b:#2192cf;
+    --head-bg:#e5e5e5;        /* 표 머리행 · 합계행 */
+    /* 글꼴 — 관공서 제출본(HWP)에서 널리 쓰는 조합.
+       본문 함초롬돋움(HCRDotum) / 대제목·목차·표지 연월·기관명 HY헤드라인M
+       / 표지 제목 한컴바탕(명조 계열).
+       한글(HWP)이 설치된 PC에는 이 글꼴이 모두 있어 HWP 제출본과 같은 인상을 준다.
+       없는 PC에서는 맑은 고딕·바탕으로 자연스럽게 내려간다. */
+    --font-body:"함초롬돋움","HCR Dotum","HCRDotum","한컴돋움","HancomDotum",
+                "Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;
+    --font-head:"HY헤드라인M","HYHeadLine-Medium","H2hdrM","HeadLineM",
+                "함초롬돋움","Malgun Gothic","맑은 고딕",sans-serif;
+    --font-serif:"함초롬바탕","HCR Batang","한컴바탕","Haansoft Batang",
+                 "HY중명조","H2mjrE","Batang","바탕",serif;
+    --line:#000;              /* 표 테두리 */
+    --ink:#000; --muted:#595959;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    font-family:var(--font-body);
+    color:var(--ink); font-size:12.5pt; line-height:1.6; letter-spacing:-0.01em;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+
+  /* ===== 인쇄(A4) =====
+     브라우저 기본 머리글(날짜·제목)/바닥글(파일 경로)을 비우고 바닥 가운데에
+     "- 1 -" 형식의 쪽 번호만 남긴다.
+     ※ content:none 은 "지정 안 함"으로 취급돼 기본 바닥글이 되살아난다.
+        반드시 빈 문자열 content:"" 를 쓸 것. */
+  @page{
+    size:A4; margin:25mm 20mm 18mm 20mm;
+    @top-left{content:""} @top-center{content:""} @top-right{content:""}
+    @bottom-left{content:""} @bottom-right{content:""}
+    @bottom-center{
+      content:"- " counter(page) " -";
+      font-family:var(--font-body); font-size:11pt; color:#000;
+    }
+  }
+  /* 표지·목차는 쪽 번호를 찍지 않고, 본문 첫 장이 1쪽이 된다.
+     ※ 쪽 번호를 앞표지 장수와 무관하게 1부터 잇는 유일하게 안전한 방법이
+        "번호 없는 쪽에서 카운터를 0으로 되돌리는 것"이다.
+        본문 첫 절에 page:이름 을 주고 그 @page 에서 counter-reset 하면,
+        그 절이 두 쪽 이상으로 넘어갈 때 쪽마다 다시 1로 초기화되어
+        1, 1, 1 … 로 번호가 끊긴다. 실제로 확인했으니 바꾸지 말 것.
+        목차가 2쪽으로 늘어나도 이 방식은 자동으로 맞는다. */
+  @page nonum{
+    @bottom-center{ content:""; }
+    counter-reset:page 0;
+  }
+  .cover, .toc{ page:nonum; }
+
+  .sheet{ width:170mm; margin:0 auto; padding:10mm 0; }
+  @media print{ .sheet{ width:auto; padding:0; } }
+
+  /* ===== 화면 미리보기 =====
+     브라우저에서 열었을 때도 A4 종이에 인쇄된 모습으로 보이게 한다.
+     인쇄와 같은 여백(상25 좌우20 하18mm)을 준 210×297mm 흰 종이를 쌓아 보여 준다.
+     쪽이 나뉘는 지점까지 똑같지는 않다. 한 쪽을 넘는 절은 그만큼 긴 종이 한 장으로
+     보이므로, 실제 쪽 나눔은 인쇄 미리보기나 scripts/make_pdf.py 로 확인할 것. */
+  @media screen{
+    body{ background:#6f747c; }
+    .sheet{ width:auto; padding:14mm 0; }
+    .sheet > .cover,
+    .sheet > .toc,
+    .sheet > section{
+      width:210mm; min-height:297mm; margin:0 auto 10mm;
+      padding:25mm 20mm 18mm; background:#fff;
+      box-shadow:0 2px 10px rgba(0,0,0,.4);
+    }
+    /* 종이마다 아래쪽에 쪽 자리를 비워 두어 인쇄와 균형이 비슷해 보이게 */
+    .sheet > section{ position:relative; }
+  }
+
+  /* ===== 페이지 넘김 제어 ===== */
+  table{ border-collapse:collapse; width:100%; margin:4px 0 10px; }
+  thead{ display:table-header-group; }
+  tr{ break-inside:avoid; page-break-inside:avoid; }
+  figure{ break-inside:avoid; page-break-inside:avoid; margin:0; }
+  section.keep{ break-inside:avoid; page-break-inside:avoid; }
+  .pagebreak{ break-before:page; page-break-before:always; }
+
+  /* ===== PDF/인쇄 버튼 (화면 전용) ===== */
+  .toolbar{ position:fixed; top:12px; right:14px; z-index:100; }
+  .toolbar button{
+    font-family:inherit; font-size:11pt; font-weight:700; cursor:pointer;
+    color:#fff; background:var(--navy); border:0; border-radius:6px;
+    padding:9px 16px; box-shadow:0 2px 6px rgba(0,70,140,.35);
+    transition:background .15s, transform .05s;
+  }
+  .toolbar button:hover{ background:#00356b; }
+  .toolbar button:active{ transform:translateY(1px); }
+  .toolbar .hint{
+    display:block; margin-top:6px; max-width:52mm; text-align:right;
+    font-size:9.5pt; line-height:1.4; color:#e8eef5; text-shadow:0 1px 2px rgba(0,0,0,.5);
+  }
+  @media print{ .toolbar{ display:none; } }
+
+  /* ===== 표지 =====
+     상단 3색 띠(노랑30 초록40 파랑30) → 제목 → 남색 굵은 선 → 연월 → 로고 → 기관명 */
+  /* 높이를 고정하면 인쇄 영역(297 - 25 - 18 = 254mm)을 넘겨 빈 쪽이 하나 더 생긴다.
+     높이를 주지 말고 요소 사이 여백으로 배치할 것. */
+  .cover{ text-align:center; break-after:page; page-break-after:always; }
+  .cover .tricolor{ display:flex; height:1.3mm; margin-top:17mm; }
+  .cover .tricolor i:nth-child(1){ flex:30; background:var(--cover-y); }
+  .cover .tricolor i:nth-child(2){ flex:40; background:var(--cover-g); }
+  .cover .tricolor i:nth-child(3){ flex:30; background:var(--cover-b); }
+  .cover h1{
+    font-family:var(--font-serif);
+    font-size:29pt; font-weight:700; line-height:1.55; letter-spacing:0.02em;
+    margin:12mm 0 0;   /* 한컴바탕(명조) 기준으로 원본 위치에 맞춘 값 */
+  }
+  .cover .rule{ height:1.1mm; background:var(--cover-rule); margin-top:16mm; }
+  .cover .date{
+    font-family:var(--font-head);
+    font-size:20pt; font-weight:700; margin-top:56mm; letter-spacing:0.05em;
+  }
+  .cover .logo{ width:48mm; height:auto; margin-top:56.5mm; }
+  .cover .org{
+    font-family:var(--font-head);
+    font-size:21pt; font-weight:700; letter-spacing:0.35em; margin-top:6mm;
+  }
+
+  /* ===== 목 차 =====
+     표지의 3색 띠를 축소해 얹고, 대제목은 좌측 네이비 바 + 옅은 배경으로 묶는다.
+     소제목만 점선 리더로 쪽 번호를 잇는다. */
+  .toc h1{
+    font-family:var(--font-head); font-size:20pt; font-weight:800;
+    letter-spacing:0.9em; text-indent:0.9em; text-align:center; margin:0 0 4mm;
+  }
+  .toc .tricolor{ display:flex; height:1.1mm; width:46mm; margin:0 auto 12mm; }
+  .toc .tricolor i:nth-child(1){ flex:30; background:var(--cover-y); }
+  .toc .tricolor i:nth-child(2){ flex:40; background:var(--cover-g); }
+  .toc .tricolor i:nth-child(3){ flex:30; background:var(--cover-b); }
+  .toc{ font-size:12pt; line-height:1.5; }
+  .toc ul{ list-style:none; margin:0; padding:0; }
+  .toc > ul > li{ margin-top:6mm; }
+  .toc > ul > li:first-child{ margin-top:0; }
+  .toc .ch{
+    background:#eef4fa; border-left:3mm solid var(--navy);
+    padding:1.5mm 4mm; color:var(--navy);
+    font-family:var(--font-head); font-size:13pt; font-weight:800; letter-spacing:0.04em;
+  }
+  .toc ul ul{ padding-left:9mm; margin-top:1.5mm; }
+  .toc ul ul li{ margin-top:1mm; }
+  .toc .row{ display:flex; align-items:baseline; }
+  /* 점선 리더(.dots)가 flex:1 로 늘어나면서 라벨을 밀어 단어 중간에서
+     줄바꿈되는 것을 막는다. 라벨과 쪽 번호는 줄바꿈하지 않는다. */
+  .toc .row > span{ white-space:nowrap; }
+  .toc .dots{ flex:1; border-bottom:2px dotted #a3b1c2; margin:0 4mm 4px; }
+  .toc .pg{ min-width:7mm; text-align:right; }
+
+  /* ===== 대제목 =====
+     <h2><span class="num">Ⅴ</span><span class="txt">설문 결과 분석</span></h2>
+     별첨도 같은 형태 : <span class="num">별첨1</span>
+     ※ 제목 글자가 흰색이라 띠의 밝은 쪽까지 넘어가면 읽히지 않는다. 짧게 쓸 것. */
+  h2{
+    display:flex; align-items:stretch; gap:1.9mm;
+    margin:0 0 7mm; padding:0; border:0;
+    break-inside:avoid; break-after:avoid; page-break-after:avoid;
+  }
+  h2 .num{
+    /* flex 아이템은 기본적으로 줄어들기 때문에 "별첨1" 처럼 글자가 늘면 두 줄로
+       접힌다. flex:0 0 auto + nowrap 으로 막고 좌우 여백을 넉넉히 준다. */
+    flex:0 0 auto; white-space:nowrap;
+    min-width:11.9mm; height:13.5mm; padding:0 3.1mm;   /* 폭·높이 모두 원본 실측값 */
+    border-top:2.1mm solid var(--accent);
+    background:var(--navy); color:#fff;
+    font-family:var(--font-head); font-size:18pt; font-weight:800;
+    display:flex; align-items:center; justify-content:center; line-height:1;
+  }
+  h2 .txt{
+    flex:1; height:13.5mm;   /* 액센트 2.1 + 띠 11.4 */
+    border-top:2.1mm solid var(--band);
+    background:linear-gradient(to right, var(--navy) 0%, #ffffff 98%);
+    display:flex; align-items:center; gap:3mm; padding:0 6mm 0 7mm;
+    color:#fff; font-family:var(--font-head);
+    font-size:18pt; font-weight:800; letter-spacing:0.1em;
+  }
+  h2 .txt .sub{ color:var(--navy); font-size:11pt; letter-spacing:0; white-space:nowrap; }
+
+  /* ===== 소제목 · 본문 번호 체계 (입찰 제안서 — 정부 개조식 6단계) =====
+     1.  (h3)  →  1.1  (h4)  →  가.  (h5)  →  ㅇ  (ul.circle)  →  -  (ul.dash)  →  ·  (ul.dot)
+     제목 문자열에 번호를 직접 쓴다(예: <h4>1.1 기관 일반 현황</h4>).
+     묶음 □가 필요하면 ul.box, 출처·비고는 ※(.note)를 쓴다(정부 표준 개조식과 호환). */
+  /* 소제목은 정부 문서처럼 담백하게 — 장식 없이 굵기·크기·들여쓰기로만 위계를 잡는다.
+     (발주처 대다수가 쓰는 개조식 관공서 서식과 톤을 맞춘 것. 색 배경·색 바를 더하지 않는다.) */
+  h3{
+    font-size:13.5pt; font-weight:800; color:#000;
+    margin:7mm 0 3mm;
+    break-after:avoid; page-break-after:avoid;
+  }
+  h4{ font-size:12.8pt; font-weight:700; margin:4.5mm 0 1.5mm; padding-left:2mm; /* 1.1 */
+      break-after:avoid; page-break-after:avoid; }
+  h5{ font-size:12.5pt; font-weight:700; margin:3mm 0 1mm; color:#222; padding-left:3mm; /* 가. */
+      break-after:avoid; page-break-after:avoid; }
+  ul.lv1, ul.lv2, ul.circle, ul.dash, ul.dot, ul.box{ list-style:none; margin:0 0 2mm; padding-left:0; }
+  ul.lv1 > li{ padding-left:5mm; text-indent:-5mm; margin:1mm 0; }
+  ul.lv2 > li{ padding-left:9mm; text-indent:-4mm; margin:1mm 0; }
+  ul.box > li{ padding-left:5mm; text-indent:-5mm; margin:1.5mm 0; font-weight:700; }
+  ul.box > li::before{ content:"□ "; }
+  ul.circle > li{ padding-left:5mm; text-indent:-5mm; margin:1mm 0; }
+  ul.circle > li::before{ content:"ㅇ "; }
+  ul.dash > li{ padding-left:9mm; text-indent:-4mm; margin:1mm 0; }
+  ul.dash > li::before{ content:"- "; }
+  ul.dot > li{ padding-left:13mm; text-indent:-3mm; margin:0.8mm 0; }
+  ul.dot > li::before{ content:"· "; }
+  /* 한 단계 더 들여쓴 - (ㅇ 아래), · (- 아래) */
+  ul.circle ul.dash{ margin:1mm 0 1mm 5mm; }
+  ul.dash ul.dot, ul.circle ul.dot{ margin:0.8mm 0 0.8mm 4mm; }
+  /* (키워드) 라벨 — 개조식 항목 첫머리의 괄호 키워드. <b class="kw">(지역한계)</b> 형태로 쓴다. */
+  .kw{ font-weight:700; }
+  p{ margin:1mm 0; }
+
+  /* ===== 다이어그램(인라인 SVG) — 추진체계도·일정표·구성도 =====
+     본문에 직접 <figure class="diagram"><svg>…</svg><figcaption>…</figcaption></figure> 로 넣는다. */
+  figure.diagram{ break-inside:avoid; page-break-inside:avoid; margin:3mm 0 5mm; text-align:center; }
+  /* 이미지 안 글자 식별성 확보 — 회사 이미지·다이어그램은 본문 폭 전체(170mm)로 배치한다.
+     통계·플랫폼·행사 이미지는 글자가 들어 있어 축소하면 읽히지 않는다.
+     작게 써야 할 그림만 figure에 class="narrow"(120mm)를 준다. */
+  figure.diagram svg, figure.diagram img{ width:100%; max-width:170mm; height:auto; border:0; }
+  figure.diagram.narrow svg, figure.diagram.narrow img{ max-width:120mm; }
+  figure.diagram figcaption{ font-size:10.5pt; color:var(--muted); margin-top:1.5mm; }
+  figure.diagram.framed img{ border:1px solid #c5d2e0; }
+
+  /* ================================================================
+     ===== 강조 컴포넌트 (입찰 제안서 전용 — 선택 사용) =====
+     기본은 절제된 관공서식이다. 아래 장치는 꼭 필요한 자리(절 도입 KPI,
+     요구↔대응 표, 핵심 약속 한두 곳)에만 골라 쓴다. 남발하면 정부 서식
+     톤이 깨지고 오히려 안 읽힌다. 색은 회사 표준 3색만, 채도는 낮게. ================================================================ */
+
+  /* ① KPI 스트립 — 핵심 수치를 큰 숫자로 늘어놓는다. 절 도입부 1회.
+     <div class="kpi"><div><b>90+</b><span>온라인 강의</span></div>…</div> */
+  .kpi{ display:flex; gap:2.5mm; margin:3mm 0 5mm; break-inside:avoid; page-break-inside:avoid; }
+  .kpi > div{
+    flex:1; border:1px solid #9db4c8; border-top:0.9mm solid var(--navy);
+    background:#fff; padding:2.4mm 1mm 2mm; text-align:center;
+  }
+  .kpi b{ display:block; font-family:var(--font-head); font-size:15pt;
+          font-weight:800; color:var(--navy); line-height:1.15; letter-spacing:-0.02em; }
+  .kpi span{ display:block; font-size:10pt; color:var(--muted); margin-top:1mm; line-height:1.3; }
+
+  /* ② 단계 바 — 사전준비→모집→운영→평가→환류 같은 흐름 한 줄 요약.
+     <div class="steps"><div>사전 준비</div><div class="on">교육 운영</div>…</div> */
+  .steps{ display:flex; margin:3mm 0 5mm; break-inside:avoid; page-break-inside:avoid; }
+  .steps > div{
+    flex:1; border:1px solid #9db4c8; background:#fff; color:#333;
+    font-size:10.5pt; font-weight:700; text-align:center; padding:2mm 1mm; line-height:1.3;
+  }
+  .steps > div + div{ border-left:0; }
+  .steps > div.on{ background:var(--navy); border-color:var(--navy); color:#fff; }
+
+  /* ③ 콜아웃 — 차별화 포인트·핵심 약속을 한 상자로 묶는다. 문서 전체 한두 곳만.
+     <div class="callout"><b class="t">차별화 포인트</b>본문…</div> */
+  .callout{
+    border:1px solid #9db4c8; border-left:1.8mm solid var(--navy);
+    background:#fff; padding:2.4mm 3.5mm; margin:3mm 0;
+    break-inside:avoid; page-break-inside:avoid;
+  }
+  .callout .t{ display:block; font-family:var(--font-head); font-size:12pt;
+               font-weight:800; color:var(--navy); margin-bottom:1.2mm; }
+  .callout.g{ border-left-color:#6f9e00; }
+  .callout.g .t{ color:#5d8500; }
+
+  /* ④ 배지 — 소제목 앞에 붙이는 라벨(공고문 필수/가점 표시가 있을 때만).
+     <span class="badge">필수</span> */
+  .badge{
+    display:inline-block; background:#fff; color:var(--navy);
+    border:1px solid var(--navy);
+    font-size:9.5pt; font-weight:700; line-height:1.5;
+    padding:0 1.8mm; border-radius:2px; margin-right:1.5mm; letter-spacing:0.02em;
+  }
+  .badge.g{ color:#5d8500; border-color:#6f9e00; }
+
+  /* ⑤ 수치·핵심어 강조 — 근거 수치에만 쓴다. 형광 밑줄은 인쇄에서도 안전하다. */
+  .hl{ background:linear-gradient(transparent 58%, #dcefb4 58%); font-weight:700; }
+  .nm{ color:var(--navy); font-weight:800; }
+
+  /* ⑥ 2단 배치 — 그림+설명, 표+표를 나란히. 한 쪽 안에 들어갈 때만 쓴다. */
+  .cols{ display:flex; gap:5mm; break-inside:avoid; page-break-inside:avoid; }
+  .cols > *{ flex:1; min-width:0; }
+
+  /* ===== 표 ===== */
+  th,td{ border:1px solid var(--line); padding:1.6mm 2.5mm; vertical-align:middle; }
+  thead th, th.head{ background:var(--head-bg); font-weight:700; text-align:center; }
+  /* 좌측 라벨열(<tbody><tr><th>기업명</th><td>…)도 관공서 양식처럼 회색 라벨로 보이게 한다. */
+  tbody th{ background:var(--head-bg); font-weight:700; text-align:center; }
+  tr.sum td{ background:var(--head-bg); font-weight:700; }
+  /* 요구사항 ↔ 대응 매트릭스 : 공고문 요구를 왼쪽, 우리 대응을 오른쪽에 짝지어 보인다.
+     평가표 대응 근거로 가장 잘 먹히는 표라 별도 클래스를 둔다. */
+  table.match td.req{ background:#f4f7fa; font-weight:700; }
+  table.match td.sec{ text-align:center; color:var(--navy); font-weight:700; white-space:nowrap; }
+  .c{ text-align:center; } .r{ text-align:right; }
+  table.small th, table.small td{ font-size:11pt; padding:1.2mm 2mm; }
+  /* 표 우상단 단위 표기 — 정부 서식 관례. <p class="unit">(단위 : 원)</p> 을 표 바로 위에 둔다. */
+  .unit{ text-align:right; font-size:10.5pt; margin:2mm 0 0.5mm; }
+  .note{ font-size:11pt; margin:2mm 0; }
+  .link{ font-size:11pt; word-break:break-all; }
+
+  /* ===== 사진·이미지 (표 안에 2열) ===== */
+  table.photos td{ padding:1mm; text-align:center; }
+  table.photos img{ width:100%; height:auto; display:block; }
+  table.photos th{ background:var(--head-bg); }
+</style>
+
+<div class="toolbar">
+  <button onclick="window.print()">PDF 저장 / 인쇄</button>
+  <span class="hint">여백·배율은 '기본', 배경 그래픽 켜기, 머리글/바닥글 끄기</span>
+</div>
+
+<div class="sheet">
+
+  <!-- ================================================================
+       [공공 입찰 제안서 — 정식(풀버전) 양식]
+       6대 영역: Ⅰ 제안기관 현황 / Ⅱ 제안 개요 / Ⅲ 과업 수행계획
+                 / Ⅳ 조직 및 인력 / Ⅴ 사후관리 / Ⅵ 사업관리
+       번호 체계: 1.(h3) → 1.1(h4) → 가.(h5) → ㅇ(ul.circle) → -(ul.dash) → ·(ul.dot)
+       ─ Ⅰ절은 제안기관마다 고정된 정보다. assets/organization-profile.md
+         (없으면 organization-profile.template.md 를 복사해 작성)에서 옮겨 채운다.
+         한 번 채워 두면 다음 제안서부터는 이 절을 그대로 재사용한다.
+       ─ Ⅱ~Ⅵ절은 공고문(RFP)마다 달라지는 부분이라 {{ }} 자리표시자와
+         지침 주석으로 골격만 깔아 두었다. 공고문 요구사항·평가배점에 맞춰 채운다.
+       ─ 어투: 정부 개조식. 명사형 종결(…필요 / …구축 / …확보)을 기본으로 하고,
+         긴 설명 문장만 "~함" 종결(…설계함 / …운영함). "~한다 / ~할 예정이다 /
+         ~합니다" 서술형은 쓰지 않는다(발주처 양식이 서술형이면 그쪽을 따른다).
+         항목 첫머리에는 (지역한계)·(선정 기준) 같은 괄호 키워드 라벨을 적극 활용:
+         <li><b class="kw">(운영역량)</b> 전담팀 신설, 협약기관 {{n}}개 확보 완료</li>
+       ================================================================ -->
+
+  <!-- ============================== 표지 ============================== -->
+  <div class="cover">
+    <div class="tricolor"><i></i><i></i><i></i></div>
+    <h1>『{{사업명 1행}}<br>{{사업명 2행}}』제안서</h1>
+    <div class="rule"></div>
+    <div class="date">{{연월 예: 2026. 7.}}</div>
+    <!-- 로고 : scripts/embed_logo.py 로 LOGO_PLACEHOLDER 를 치환한다.
+         로고 파일이 없으면 아래 <img> 줄을 통째로 지우고 기관명만 둔다. -->
+    <img class="logo" src="LOGO_PLACEHOLDER" alt="{{제안기관명}}">
+    <div class="org">{{제안기관명}}</div>
+  </div>
+
+  <!-- ============================== 목 차 ============================== -->
+  <div class="toc">
+    <h1>목 차</h1>
+    <div class="tricolor"><i></i><i></i><i></i></div>
+    <ul>
+      <li>
+        <div class="row ch"><span>Ⅰ. 제안기관 현황</span></div>
+        <ul>
+          <li><div class="row"><span>1. 일반현황</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+          <li><div class="row"><span>2. 기관 주요 역량</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+        </ul>
+      </li>
+      <li>
+        <div class="row ch"><span>Ⅱ. 제안 개요</span></div>
+        <ul>
+          <li><div class="row"><span>1. 과업에 대한 이해도</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+          <li><div class="row"><span>2. 과업 추진 전략</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+        </ul>
+      </li>
+      <li>
+        <div class="row ch"><span>Ⅲ. 과업 수행계획</span></div>
+        <ul>
+          <li><div class="row"><span>1. 과업 접근 방법</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+          <li><div class="row"><span>2. 세부 수행계획</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+        </ul>
+      </li>
+      <li>
+        <div class="row ch"><span>Ⅳ. 조직 및 인력</span></div>
+        <ul>
+          <li><div class="row"><span>1. 수행 조직 구성</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+          <li><div class="row"><span>2. 투입인력 및 역할</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+          <li><div class="row"><span>3. 인프라 활용 계획</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+        </ul>
+      </li>
+      <li>
+        <div class="row ch"><span>Ⅴ. 사후관리</span></div>
+        <ul>
+          <li><div class="row"><span>1. 교육 성과평가</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+          <li><div class="row"><span>2. 환류 및 확산 계획</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+        </ul>
+      </li>
+      <li>
+        <div class="row ch"><span>Ⅵ. 사업관리</span></div>
+        <ul>
+          <li><div class="row"><span>1. 일정관리</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+          <li><div class="row"><span>2. 품질관리</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+          <li><div class="row"><span>3. 위험관리</span><span class="dots"></span><span class="pg">{{n}}</span></div></li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ═══════════════════ Ⅰ. 제안기관 현황 [기관 고정 정보] ═══════════════════
+       assets/organization-profile.md 의 내용을 이 절에 옮겨 채운다.
+       한 번 채워 두면 다음 제안서부터는 이 두 section 을 그대로 복사해 재사용한다.
+       공고문이 요구하지 않는 항목(예: 플랫폼·장비)은 통째로 빼도 된다. -->
+  <section class="pagebreak">
+    <h2><span class="num">Ⅰ</span><span class="txt">제안기관 현황</span></h2>
+
+    <h3>1. 일반현황</h3>
+
+    <h4>1.1 기관 일반 현황</h4>
+    <h5>가. 기관 현황</h5>
+    <!-- 행 이름은 기관 성격에 맞게 조정한다.
+         (기업) 기업명·사업자등록번호·법인등록번호·임직원수
+         (대학·연구기관) 기관명·설립근거·소속 학과/센터·전임인력 수 -->
+    <table class="small">
+      <tbody>
+        <tr><th style="width:26%">기관명</th><td>{{기관명}}</td></tr>
+        <tr><th>홈페이지</th><td>{{홈페이지 주소}}</td></tr>
+        <tr><th>대표자</th><td>{{대표자 직위·성명}}</td></tr>
+        <tr><th>사업자등록번호</th><td>{{번호}}</td></tr>
+        <tr><th>설립일자</th><td>{{YYYY.MM.DD.}}</td></tr>
+        <tr><th>구성원 수</th><td>{{n명}}</td></tr>
+        <tr><th>소재지</th><td>{{주소}}</td></tr>
+        <tr><th>주요사업</th><td>{{정관·사업자등록증상 주요 사업}}</td></tr>
+      </tbody>
+    </table>
+
+    <h5>나. 비전 및 추진 전략</h5>
+    <table class="small">
+      <tbody>
+        <tr><th style="width:26%">비전</th><td>{{기관이 지향하는 바를 한 문장으로}}</td></tr>
+        <tr><th>설립 목적</th><td>{{설립 목적 — 본 과업과 연결되는 대목을 앞에}}</td></tr>
+        <tr><th>추진 전략</th><td>{{전략 1}} / {{전략 2}} / {{전략 3}}</td></tr>
+      </tbody>
+    </table>
+
+    <h5>다. 기관 특장점</h5>
+    <!-- KPI 스트립 : 기관을 처음 보는 평가위원이 3초 안에 규모를 잡게 한다.
+         숫자는 organization-profile.md 의 「표준 인용 수치」와 반드시 일치시킬 것.
+         쓸 수치가 3개뿐이면 칸을 3개로 줄이고, 마땅한 수치가 없으면 스트립을 통째로 뺀다. -->
+    <div class="kpi">
+      <div><b>{{수치}}<span style="font-size:12pt">{{단위}}</span></b><span>{{항목명}}<br>({{보조 설명}})</span></div>
+      <div><b>{{수치}}<span style="font-size:12pt">{{단위}}</span></b><span>{{항목명}}<br>({{보조 설명}})</span></div>
+      <div><b>{{수치}}<span style="font-size:12pt">{{단위}}</span></b><span>{{항목명}}<br>({{보조 설명}})</span></div>
+      <div><b>{{수치}}<span style="font-size:12pt">{{단위}}</span></b><span>{{항목명}}<br>({{보조 설명}})</span></div>
+    </div>
+    <ul class="box"><li>핵심 역량</li></ul>
+    <ul class="circle">
+      <li>{{역량 1 — 근거 수치를 함께. 예: 자체 콘텐츠 <span class="nm">n개</span> 보유}}</li>
+      <li>{{역량 2}}</li>
+      <li>{{역량 3}}</li>
+    </ul>
+    <ul class="box"><li>교육(사업) 운영 사례</li></ul>
+    <ul class="circle">
+      <li>{{공공기관 대상 사례 — 기관명 나열}}</li>
+      <li>{{기업·단체 대상 사례}}</li>
+      <li>{{그 밖의 대표 사례}}</li>
+    </ul>
+    <ul class="box"><li>행사 운영 사례</li></ul>
+    <ul class="circle">
+      <li>{{대표 행사 1 — 규모·기간을 함께}}</li>
+      <li>{{대표 행사 2}}</li>
+    </ul>
+    <!-- 기관 활동 사진·홍보 이미지가 있으면(선택) :
+    <figure class="diagram"><img src="images/{{파일명}}.png" alt="{{설명}}"><figcaption>[그림] {{설명}}</figcaption></figure> -->
+  </section>
+
+  <!-- Ⅰ.2 기관 주요 역량 [기관 고정 정보] -->
+  <section class="pagebreak">
+    <h2><span class="num">Ⅰ</span><span class="txt">제안기관 현황<span class="sub">(계속)</span></span></h2>
+
+    <h3>2. 기관 주요 역량</h3>
+    <!-- 성과 요약 그림이 있으면(선택) :
+    <figure class="diagram"><img src="images/{{파일명}}.png" alt="{{기관}} 주요 성과"><figcaption>[그림] 주요 성과 요약</figcaption></figure> -->
+
+    <h4>2.1 핵심 역량</h4>
+    <!-- 공고문이 요구하는 역량 순서대로 가./나./다. 를 배치한다.
+         공고문 주제와 가장 가까운 역량을 반드시 「가.」에 둘 것. -->
+    <h5>가. {{핵심 역량 1 — 예: 자체 교육 콘텐츠}}</h5>
+    <ul class="circle">
+      <li>{{연혁·규모를 한 줄로 — 언제 설립되어 무엇을 해 왔는지}}</li>
+      <li>{{보유 자원의 구체 수치 — <span class="nm">강조할 숫자</span> 형태로}}</li>
+      <li>{{외부에서 검증된 성과 — <span class="hl">평점·수상·인증</span> 등}}</li>
+    </ul>
+    <h5>나. {{핵심 역량 2}}</h5>
+    <ul class="circle">
+      <li>{{내용}}</li>
+    </ul>
+    <h5>다. {{핵심 역량 3}}</h5>
+    <ul class="circle">
+      <li>{{내용}}</li>
+      <li>{{내용}}</li>
+    </ul>
+    <!-- 차별화 포인트를 한 상자로 못 박고 싶을 때만(문서 전체 한두 곳) :
+    <div class="callout g">
+      <b class="t">{{한 줄 슬로건}}</b>
+      {{왜 이 기관이 적임인지 두세 문장으로. 근거 수치를 반드시 포함함}}
+    </div> -->
+
+    <h4>2.2 보유 인프라·플랫폼</h4>
+    <!-- 자체 시스템·플랫폼·솔루션이 없으면 이 소절을 통째로 삭제하고 뒤 번호를 당긴다. -->
+    <h5>가. {{플랫폼·시스템명}}</h5>
+    <ul class="circle">
+      <li>{{무엇을 하는 시스템인지 한 줄}}
+      <ul class="dash">
+        <li>{{기능 1 — 본 과업에서 어떻게 쓰이는지까지}}</li>
+        <li>{{기능 2}}</li>
+        <li>본 과업에서 교육생 {{인원}}명의 학습관리 및 성과 측정 도구로 활용 예정</li>
+      </ul></li>
+    </ul>
+    <h5>나. 그 밖의 자원</h5>
+    <ul class="circle">
+      <li>{{커뮤니티·교재·저작물 등}}</li>
+    </ul>
+
+    <h4>2.3 유사 사업 수행 실적</h4>
+    <table class="small">
+      <thead><tr><th style="width:6%">연번</th><th>사업명</th><th style="width:13%">사업기간</th><th style="width:12%">사업비(원)</th><th style="width:18%">발주기관</th></tr></thead>
+      <tbody>
+        <tr><td class="c">1</td><td>{{사업명}}</td><td class="c">{{YY.MM~YY.MM}}</td><td class="r">{{금액}}</td><td>{{발주기관(소관부처)}}</td></tr>
+        <tr><td class="c">2</td><td>{{사업명}}</td><td class="c">{{YY.MM~YY.MM}}</td><td class="r">{{금액}}</td><td>{{발주기관(소관부처)}}</td></tr>
+        <tr><td class="c">3</td><td>{{사업명}}</td><td class="c">{{YY.MM~YY.MM}}</td><td class="r">{{금액}}</td><td>{{발주기관(소관부처)}}</td></tr>
+      </tbody>
+    </table>
+    <p class="note">※ 공고문의 유사 실적 요건(분야·기간·규모)에 맞는 사업을 위로 올려 강조하고, 무관한 실적은 뺀다. 실적증명서 발급이 가능한 건만 적는다.</p>
+
+    <h4>2.4 교·강사진(참여인력) 현황</h4>
+    <!-- 개인정보 : 실명·경력은 발주처 제출용으로만 쓴다. 본인 동의를 받은 범위에서 적고,
+         공개용(홈페이지·블로그) 버전에는 성명을 'ㅇㅇㅇ' 등으로 가린다. -->
+    <table class="small">
+      <thead><tr><th style="width:8%">연번</th><th style="width:14%">성명</th><th>전문 분야 및 경력</th></tr></thead>
+      <tbody>
+        <tr><td class="c">1</td><td class="c">{{성명}}</td><td>{{분야, 경력 n년, 주요 이력}}</td></tr>
+        <tr><td class="c">2</td><td class="c">{{성명}}</td><td>{{분야, 경력 n년, 주요 이력}}</td></tr>
+        <tr><td class="c">3</td><td class="c">{{성명}}</td><td>{{분야, 경력 n년, 주요 이력}}</td></tr>
+      </tbody>
+    </table>
+
+    <h4>2.5 시설·장비 현황</h4>
+    <h5>가. 시설</h5>
+    <table class="small">
+      <thead><tr><th>시설명</th><th style="width:12%">보유</th><th style="width:22%">위치</th><th style="width:14%">수용인원</th><th style="width:14%">면적(m²)</th></tr></thead>
+      <tbody>
+        <tr><td>{{시설명}}</td><td class="c">{{자가/임차}}</td><td class="c">{{위치}}</td><td class="c">{{n명}}</td><td class="c">{{면적}}</td></tr>
+        <tr><td>{{시설명}}</td><td class="c">{{자가/임차}}</td><td class="c">{{위치}}</td><td class="c">{{n명}}</td><td class="c">{{면적}}</td></tr>
+      </tbody>
+    </table>
+    <p class="note">※ {{임차기간·사용 가능 기간 등 특기사항}}</p>
+    <h5>나. 장비</h5>
+    <table class="small">
+      <thead><tr><th>장비명</th><th style="width:18%">수량</th><th>활용 용도</th></tr></thead>
+      <tbody>
+        <tr><td>{{장비명}}</td><td class="c">{{수량}}</td><td>{{용도}}</td></tr>
+        <tr><td>{{장비명}}</td><td class="c">{{수량}}</td><td>{{용도}}</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════ Ⅱ. 제안 개요 [공고문 기반으로 채움] ═══════════════
+       공고문의 과업 목적·배경을 우리가 정확히 이해했음을 보이고, 우리 강점과
+       연결한 추진 전략(방향)을 제시한다. 평가표에 '이해도/전략' 배점이 크면 두껍게. -->
+  <section class="pagebreak">
+    <h2><span class="num">Ⅱ</span><span class="txt">제안 개요</span></h2>
+
+    <h3>1. 과업에 대한 이해도</h3>
+    <h4>1.1 사업 배경 및 필요성 이해</h4>
+    <ul class="circle">
+      <li>{{공고문이 밝힌 사업 배경·정책 맥락을 요약하고, 왜 이 교육이 필요한지 우리 언어로 재정리}}</li>
+      <li>{{발주처가 겪는 문제·목표를 짚고, 본 과업이 그 해결에 어떻게 기여하는지}}</li>
+    </ul>
+    <h4>1.2 과업 목표 및 요구사항 이해</h4>
+    <ul class="circle">
+      <li>{{공고문의 핵심 요구사항(대상·규모·시수·성과지표)을 항목별로 정리 — 빠짐없이}}</li>
+      <li>{{우리가 특히 주목한 요구사항과 그에 대한 대응 방향}}</li>
+    </ul>
+
+    <!-- 요구사항 ↔ 대응 매트릭스.
+         공고문의 요구를 왼쪽에 그대로 옮기고, 우리의 대응과 그 근거 절을 오른쪽에 짝짓는다.
+         평가위원이 "요구를 다 읽었는지"를 가장 빨리 확인하는 표라, 배점표가 있으면 반드시 넣는다.
+         행 수는 공고문 요구 개수만큼 늘린다. -->
+    <table class="small match">
+      <thead><tr><th style="width:30%">공고문 요구사항</th><th>제안기관 대응 방안</th><th style="width:14%">해당 절</th></tr></thead>
+      <tbody>
+        <tr><td class="req">{{요구 1}}</td><td>{{대응 방안 — 구체 수치·실적 근거}}</td><td class="sec">{{Ⅲ-2.1}}</td></tr>
+        <tr><td class="req">{{요구 2}}</td><td>{{대응 방안}}</td><td class="sec">{{Ⅲ-2.2}}</td></tr>
+        <tr><td class="req">{{요구 3}}</td><td>{{대응 방안}}</td><td class="sec">{{Ⅴ-1}}</td></tr>
+      </tbody>
+    </table>
+
+    <h3>2. 과업 추진 전략</h3>
+    <ul class="box"><li>추진 방향</li></ul>
+    <!-- 개조식 3단 위계 예: ㅇ(circle) → -(dash) → ·(dot). (키워드) 라벨은 b.kw -->
+    <ul class="circle">
+      <li><b class="kw">(강점매칭)</b> {{공고문 요구사항 ↔ 우리 기관 강점 매칭 — Ⅰ-2 핵심 역량 중 이 요구에 직접 답하는 것을 지목}}
+      <ul class="dash">
+        <li>{{매칭 근거 1 — 구체 수치·실적}}
+        <ul class="dot"><li>{{보충 세부 사항이 필요할 때만 · 단계 사용}}</li></ul></li>
+      </ul></li>
+      <li><b class="kw">(차별화)</b> {{경쟁 기관과 다른 점 — 자체 보유 자원·전담 인력·현장 접근성 등 구체적으로}}</li>
+    </ul>
+    <div class="callout">
+      <b class="t">{{기관명}}을(를) 선택해야 하는 이유</b>
+      {{한 문단으로, 이 과업에서 우리만 줄 수 있는 것을 못 박는다. 추상어("최고의", "풍부한")
+      대신 Ⅰ절에 적은 구체 수치·실적으로 쓴다.}}
+    </div>
+    <figure class="diagram">
+      <svg viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg" font-family="'Malgun Gothic',sans-serif">
+        <rect x="10" y="55" width="120" height="40" rx="4" fill="#eef4fa" stroke="#00468c"/>
+        <text x="70" y="80" text-anchor="middle" font-size="13" fill="#00468c">공고문 요구</text>
+        <rect x="240" y="20" width="120" height="30" rx="4" fill="#00468c"/><text x="300" y="40" text-anchor="middle" font-size="12" fill="#fff">전략 1</text>
+        <rect x="240" y="60" width="120" height="30" rx="4" fill="#00468c"/><text x="300" y="80" text-anchor="middle" font-size="12" fill="#fff">전략 2</text>
+        <rect x="240" y="100" width="120" height="30" rx="4" fill="#00468c"/><text x="300" y="120" text-anchor="middle" font-size="12" fill="#fff">전략 3</text>
+        <rect x="470" y="55" width="120" height="40" rx="4" fill="#99cc00"/><text x="530" y="80" text-anchor="middle" font-size="13" fill="#fff">성과 목표</text>
+        <line x1="130" y1="75" x2="240" y2="35" stroke="#8aa" /><line x1="130" y1="75" x2="240" y2="75" stroke="#8aa"/><line x1="130" y1="75" x2="240" y2="115" stroke="#8aa"/>
+        <line x1="360" y1="35" x2="470" y2="75" stroke="#8aa"/><line x1="360" y1="75" x2="470" y2="75" stroke="#8aa"/><line x1="360" y1="115" x2="470" y2="75" stroke="#8aa"/>
+      </svg>
+      <figcaption>[그림] 과업 추진 전략 개념도 (내용에 맞게 문구 교체)</figcaption>
+    </figure>
+  </section>
+
+  <!-- ═══════════════ Ⅲ. 과업 수행계획 [공고문 기반] ═══════════════ -->
+  <section class="pagebreak">
+    <h2><span class="num">Ⅲ</span><span class="txt">과업 수행계획</span></h2>
+
+    <h3>1. 과업 접근 방법</h3>
+    <!-- 단계 바 : 수행 흐름을 한 줄로 보인다. 단계 이름은 과업에 맞게 바꾸고, 개수도 조정한다. -->
+    <div class="steps">
+      <div>사전 준비</div><div>모집·선발</div><div class="on">교육 운영</div><div>성과평가</div><div>환류·확산</div>
+    </div>
+    <ul class="circle">
+      <li>{{과업을 어떤 단계(사전준비→모집→운영→평가→환류)로 접근하는지 개괄}}</li>
+      <li>{{운영 원칙 — 실습 중심, 자체 학습관리 도구 활용 등}}</li>
+    </ul>
+
+    <h3>2. 세부 수행계획</h3>
+    <h4>2.1 교육과정 설계(커리큘럼)</h4>
+    <ul class="circle"><li>{{과정 설계 개요 — 목표 역량, 단계 구성, 실습 비중}}</li></ul>
+    <table class="small">
+      <thead><tr><th style="width:12%">차시</th><th style="width:20%">일자</th><th style="width:28%">주제</th><th>세부 내용</th></tr></thead>
+      <tbody><tr><td class="c">1</td><td class="c">{{날짜}}</td><td>{{주제}}</td><td>{{세부 내용}}</td></tr></tbody>
+    </table>
+    <h4>2.2 운영 방식</h4>
+    <ul class="circle">
+      <li>{{집합교육·멘토링·온라인 사전학습 운영 방식}}</li>
+      <li>{{모집·선발 계획, 출결·학습관리 방식}}</li>
+    </ul>
+  </section>
+
+  <!-- ═══════════════ Ⅳ. 조직 및 인력 [조직도 고정 + 투입인력 선정] ═══════════════ -->
+  <section class="pagebreak">
+    <h2><span class="num">Ⅳ</span><span class="txt">조직 및 인력</span></h2>
+
+    <h3>1. 수행 조직 구성</h3>
+    <ul class="circle"><li><b class="kw">(조직구성)</b> {{총괄 책임자}} 아래 {{n}}개 조직({{조직명 나열}})이 과업을 분담·수행하는 체계 구축</li></ul>
+    <!-- 조직도 : 아래 SVG 의 상자 이름만 우리 조직에 맞게 바꾸면 된다.
+         기관 공식 조직도 이미지 파일이 있으면 SVG 대신 아래 <img> 주석을 쓴다.
+    <figure class="diagram">
+      <img src="images/org-chart.png" alt="{{기관명}} 조직도">
+      <figcaption>[그림] 사업 수행 조직도</figcaption>
+    </figure> -->
+    <figure class="diagram">
+      <svg viewBox="0 0 560 210" xmlns="http://www.w3.org/2000/svg" font-family="'Malgun Gothic',sans-serif">
+        <rect x="210" y="10" width="140" height="38" rx="4" fill="#00468c"/><text x="280" y="34" text-anchor="middle" font-size="13" fill="#fff">총괄 책임자</text>
+        <line x1="280" y1="48" x2="280" y2="80" stroke="#556"/>
+        <line x1="90" y1="80" x2="470" y2="80" stroke="#556"/>
+        <line x1="90" y1="80" x2="90" y2="110" stroke="#556"/><line x1="280" y1="80" x2="280" y2="110" stroke="#556"/><line x1="470" y1="80" x2="470" y2="110" stroke="#556"/>
+        <rect x="20" y="110" width="140" height="70" rx="4" fill="#eef4fa" stroke="#00468c"/><text x="90" y="140" text-anchor="middle" font-size="12" fill="#00468c">교육·운영</text>
+        <rect x="210" y="110" width="140" height="70" rx="4" fill="#eef4fa" stroke="#00468c"/><text x="280" y="140" text-anchor="middle" font-size="12" fill="#00468c">기획·행정</text>
+        <rect x="400" y="110" width="140" height="70" rx="4" fill="#eef4fa" stroke="#00468c"/><text x="470" y="140" text-anchor="middle" font-size="12" fill="#00468c">평가·품질</text>
+      </svg>
+      <figcaption>[그림] 사업 수행 조직도 (조직명은 우리 기관에 맞게 교체)</figcaption>
+    </figure>
+
+    <h3>2. 투입인력 및 역할</h3>
+    <p class="note">※ 위 Ⅰ-2.4 교·강사진에서 본 과업에 투입할 인력을 골라 역할을 배정한다.</p>
+    <table class="small">
+      <thead><tr><th style="width:16%">성명</th><th style="width:20%">역할</th><th style="width:24%">전문 분야</th><th>주요 담당 업무</th></tr></thead>
+      <tbody>
+        <tr><td class="c">{{성명}}</td><td class="c">총괄 책임</td><td class="c">{{분야}}</td><td>{{담당 업무}}</td></tr>
+        <tr><td class="c">{{성명}}</td><td class="c">주강사</td><td class="c">{{분야}}</td><td>{{담당 업무}}</td></tr>
+      </tbody>
+    </table>
+
+    <h3>3. 인프라 활용 계획</h3>
+    <ul class="circle">
+      <li>학습관리 — {{출결·진도·성취도 관리 방식과 사용 도구}}</li>
+      <li>교재·실습 — {{교재 제작·배포 방식, 실습 환경}}</li>
+      <li>공간·장비 — {{자체 시설·장비 활용 계획 또는 발주처 제공 공간 활용 계획}}</li>
+    </ul>
+  </section>
+
+  <!-- ═══════════════ Ⅴ. 사후관리 [공고문 성과지표 기반] ═══════════════ -->
+  <section class="pagebreak">
+    <h2><span class="num">Ⅴ</span><span class="txt">사후관리</span></h2>
+
+    <h3>1. 교육 성과평가</h3>
+    <ul class="circle">
+      <li>{{성과지표 — 수료율·만족도·역량 향상도 등 공고문 요구 지표와 목표치}}</li>
+      <li><b class="kw">(측정방법)</b> {{사전·사후 진단, 만족도 설문, 결과물 평가 등 측정 도구와 시점}}</li>
+    </ul>
+
+    <h3>2. 환류 및 확산 계획</h3>
+    <ul class="circle">
+      <li>결과보고서 제출 및 개선점 환류, 우수 결과물 공유·홍보를 통한 성과 확산</li>
+      <li>{{수료생 커뮤니티·사후 콘텐츠 등 지속 학습 지원 방안}}</li>
+    </ul>
+  </section>
+
+  <!-- ═══════════════ Ⅵ. 사업관리 [일정·품질·위험] ═══════════════ -->
+  <section class="pagebreak">
+    <h2><span class="num">Ⅵ</span><span class="txt">사업관리</span></h2>
+
+    <h3>1. 일정관리</h3>
+    <table class="small">
+      <thead><tr><th style="width:22%">단계</th><th style="width:22%">기간</th><th>주요 내용</th></tr></thead>
+      <tbody>
+        <tr><td class="c">사전 준비</td><td class="c">{{기간}}</td><td>{{과정 확정·교재 제작·모집 준비}}</td></tr>
+        <tr><td class="c">모집·선발</td><td class="c">{{기간}}</td><td>{{홍보·접수·선발}}</td></tr>
+        <tr><td class="c">교육 운영</td><td class="c">{{기간}}</td><td>{{집합교육·멘토링·프로젝트}}</td></tr>
+        <tr><td class="c">평가·결과보고</td><td class="c">{{기간}}</td><td>{{성과평가·설문·결과보고서 제출}}</td></tr>
+      </tbody>
+    </table>
+
+    <!-- [정부 서식 표 패턴 ①] 역할분담표 — 공동수행(컨소시엄)이면 주석을 풀어 쓴다.
+    <h3>?. 역할 분담</h3>
+    <table class="small">
+      <thead><tr><th style="width:16%">구분</th><th style="width:34%">주요 내용</th><th>역할 분담 (주관/참여)</th></tr></thead>
+      <tbody>
+        <tr><th>기획·운영</th><td>훈련과정 설계·운영·품질관리 총괄</td><td>주관: 커리큘럼·강사·LMS 운영 / 참여: 공간·인프라·행정 지원</td></tr>
+        <tr><th>사업비 집행</th><td>사업비 집행 및 정산</td><td>주관: 총괄 집행·정산 책임 / 참여: 정산 협조</td></tr>
+      </tbody>
+    </table>
+    -->
+    <!-- [정부 서식 표 패턴 ②] 산출내역표(소요 예산) — 예산 제출이 요구되면 주석을 풀어 쓴다.
+         표 바로 위에 우측 정렬 단위 표기(p.unit)를 두는 것이 관례다.
+    <p class="unit">(단위 : 원)</p>
+    <table class="small">
+      <thead><tr><th style="width:14%">구분</th><th style="width:22%">항목</th><th>세부 산출내역</th><th style="width:12%">단가(원)</th><th style="width:8%">수량</th><th style="width:14%">금액(원)</th></tr></thead>
+      <tbody>
+        <tr><th rowspan="2">인건비</th><td>{{항목}}</td><td>{{산출 근거}}</td><td class="r">{{단가}}</td><td class="c">{{수량}}</td><td class="r">{{금액}}</td></tr>
+        <tr><td>{{항목}}</td><td>{{산출 근거}}</td><td class="r">{{단가}}</td><td class="c">{{수량}}</td><td class="r">{{금액}}</td></tr>
+        <tr class="sum"><td colspan="5">합계</td><td class="r">{{합계}}</td></tr>
+      </tbody>
+    </table>
+    <p class="note">※ 산출 기준: {{근거 규정·단가표}}</p>
+    -->
+
+    <h3>2. 품질관리</h3>
+    <ul class="circle">
+      <li>{{품질을 담보하는 근거 — 검증된 커리큘럼·강사 자격·표준 운영 절차 등}}</li>
+      <li>중간 점검·강사 피드백·만족도 모니터링을 통한 상시 품질 개선</li>
+    </ul>
+
+    <h3>3. 위험관리</h3>
+    <table class="small">
+      <thead><tr><th style="width:30%">위험 요인</th><th style="width:20%">대응 등급</th><th>대응 방안</th></tr></thead>
+      <tbody>
+        <tr><td>{{모집 미달}}</td><td class="c">{{중/상/하}}</td><td>{{사전 홍보 채널 다각화, 예비 모집}}</td></tr>
+        <tr><td>{{강사 유고}}</td><td class="c">{{중}}</td><td>{{동일 분야 예비 강사 상시 확보}}</td></tr>
+        <tr><td>{{일정 지연}}</td><td class="c">{{하}}</td><td>{{버퍼 일정 확보, 온라인 보강}}</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
