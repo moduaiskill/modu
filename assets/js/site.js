@@ -255,59 +255,64 @@
     stage.id = "showcase-stage";
     stage.setAttribute("role", "tabpanel");
     const frame = el("div", "showcase-frame");
+    const thumbs = el("div", "showcase-thumbs");
     const info = el("div", "showcase-info");
-    stage.append(frame, info);
+    stage.append(frame, thumbs, info);
 
-    /* 좁은 화면에서는 문서를 축소해 한 폭에 담습니다. */
-    const FRAME_BASE_WIDTH = 900;
-    function fitFrame() {
-      const embed = frame.querySelector("iframe[data-fit]");
-      if (!embed || !frame.clientWidth) return;
-      const scale = Math.min(1, frame.clientWidth / FRAME_BASE_WIDTH);
-      if (scale >= 1) {
-        embed.removeAttribute("style");
-        return;
-      }
-      embed.style.width = FRAME_BASE_WIDTH + "px";
-      embed.style.height = Math.round(frame.clientHeight / scale) + "px";
-      embed.style.transformOrigin = "top left";
-      embed.style.transform = "scale(" + scale + ")";
+    /* 결과물은 실제 비율 그대로의 이미지로 보여 줍니다. */
+    function showImage(result, index) {
+      const shot = result.gallery[index];
+      const img = el("img");
+      img.src = shot.src;
+      img.alt = shot.alt || result.title + " 미리보기";
+      img.loading = "lazy";
+      img.decoding = "async";
+      frame.replaceChildren(img);
+      frame.scrollTop = 0;
+      [...thumbs.children].forEach((button, order) => {
+        const active = order === index;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
     }
 
-    function renderFrame(result) {
-      frame.replaceChildren();
-      if (/\.(html?|pdf)$/i.test(result.view)) {
-        const embed = el("iframe");
-        embed.src = result.view;
-        embed.title = result.title + " 미리보기";
-        embed.loading = "lazy";
-        if (!/\.pdf$/i.test(result.view)) embed.dataset.fit = "";
-        frame.append(embed);
-        fitFrame();
-        return;
+    function renderGallery(result) {
+      thumbs.replaceChildren();
+      if (result.gallery.length < 2) {
+        thumbs.hidden = true;
+      } else {
+        thumbs.hidden = false;
+        result.gallery.forEach((shot, index) => {
+          const button = el("button", "showcase-thumb");
+          button.type = "button";
+          const img = el("img");
+          img.src = shot.src;
+          img.alt = "";
+          img.loading = "lazy";
+          button.append(img, el("span", "", shot.label || String(index + 1)));
+          button.addEventListener("click", () => showImage(result, index));
+          thumbs.append(button);
+        });
       }
-      if (result.preview) {
-        const img = el("img");
-        img.src = result.preview;
-        img.alt = result.alt || result.title + " 미리보기";
-        img.loading = "lazy";
-        frame.append(img);
-        return;
-      }
+      showImage(result, 0);
+    }
+
+    /* 마크다운처럼 이미지가 어울리지 않는 결과물은 내용을 그대로 싣습니다. */
+    function renderText(result) {
       const tile = el("div", "doc-tile");
       tile.append(el("b", "", result.tile || "DOC"), el("span", "", result.format));
-      frame.append(tile);
-      if (/\.(md|txt)$/i.test(result.view)) {
-        fetch(result.view)
-          .then((response) => (response.ok ? response.text() : Promise.reject()))
-          .then((text) => {
-            if (!frame.contains(tile)) return;
-            frame.replaceChildren(el("pre", "showcase-text", text));
-          })
-          .catch(() => {
-            /* 파일을 바로 읽을 수 없으면 표지 타일을 그대로 둡니다. */
-          });
-      }
+      frame.replaceChildren(tile);
+      thumbs.hidden = true;
+      if (!/\.(md|txt)$/i.test(result.view)) return;
+      fetch(result.view)
+        .then((response) => (response.ok ? response.text() : Promise.reject()))
+        .then((text) => {
+          if (!frame.contains(tile)) return;
+          frame.replaceChildren(el("pre", "showcase-text", text));
+        })
+        .catch(() => {
+          /* 파일을 바로 읽을 수 없으면 표지 타일을 그대로 둡니다. */
+        });
     }
 
     function renderInfo(result) {
@@ -329,7 +334,7 @@
       if (skill) meta.append(tag("스킬 · " + skill.title));
       info.append(meta);
       const links = el("div", "result-links");
-      links.append(link(result.view, "새 탭에서 크게 보기", "", true));
+      links.append(link(result.view, result.viewLabel || "원본 열어보기", "", true));
       if (result.download) {
         links.append(link(result.download, result.downloadLabel || "내려받기"));
       }
@@ -369,19 +374,16 @@
         button.setAttribute("aria-selected", String(active));
         button.tabIndex = active ? 0 : -1;
       });
+      const result = items[index];
       stage.setAttribute("aria-labelledby", buttons[index].id);
-      renderFrame(items[index]);
-      renderInfo(items[index]);
+      if (result.gallery && result.gallery.length) renderGallery(result);
+      else renderText(result);
+      renderInfo(result);
     }
 
     list.append(...buttons);
     wrap.append(list, stage);
     if (items.length) select(0);
-    if (window.ResizeObserver) {
-      new ResizeObserver(fitFrame).observe(frame);
-    } else {
-      window.addEventListener("resize", fitFrame);
-    }
     return wrap;
   }
   function memberCard(member) {

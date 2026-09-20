@@ -1040,27 +1040,62 @@ input:focus-visible,
   overflow: hidden;
 }
 .showcase-frame {
-  height: 560px;
+  max-height: 640px;
   background: var(--bg-soft);
   border-bottom: 1px solid var(--line-soft);
   overflow: auto;
+  overscroll-behavior: contain;
 }
-.showcase-frame iframe {
+/* 이미지는 실제 비율 그대로, 폭을 꽉 채워 보여 줍니다. */
+.showcase-frame img {
   width: 100%;
-  height: 100%;
-  border: 0;
+  height: auto;
   display: block;
   background: #fff;
 }
-.showcase-frame img {
+.showcase-frame .doc-tile {
+  height: 420px;
+}
+.showcase-thumbs {
+  display: flex;
+  gap: 10px;
+  padding: 14px 22px 0;
+  overflow-x: auto;
+}
+.showcase-thumb {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 92px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+  text-align: center;
+}
+.showcase-thumb img {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
+  height: 58px;
+  object-fit: cover;
   object-position: top center;
+  border: 1px solid var(--line);
+  border-radius: 3px;
   background: #fff;
 }
-.showcase-frame .doc-tile {
-  height: 100%;
+.showcase-thumb:hover img {
+  border-color: var(--navy);
+}
+.showcase-thumb.active img {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 2px var(--navy);
+}
+.showcase-thumb.active {
+  color: var(--ink);
+  font-weight: 600;
 }
 .showcase-text {
   margin: 0;
@@ -1794,7 +1829,7 @@ input:focus-visible,
     min-width: 190px;
   }
   .showcase-frame {
-    height: 440px;
+    max-height: 520px;
   }
   .library-tools {
     flex-direction: column;
@@ -1859,7 +1894,10 @@ input:focus-visible,
     grid-template-columns: 1fr;
   }
   .showcase-frame {
-    height: 360px;
+    max-height: 420px;
+  }
+  .showcase-thumbs {
+    padding: 12px 16px 0;
   }
   .showcase-info {
     padding: 16px 16px 18px;

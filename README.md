@@ -56,6 +56,8 @@ modu/
 ├── examples/                     # 시연 결과물 6종과 스킬로 만든 예시 2종
 ├── downloads/                    # 개별 스킬 ZIP 배포본
 ├── scripts/package_skills.py     # ZIP 배포본 갱신
+├── scripts/make_previews.js      # examples 샘플 → 미리보기 PNG 캡처
+├── scripts/optimize_previews.py  # 미리보기 PNG·PDF → assets/previews WebP
 ├── tests/test_hwpx.py            # HWPX 텍스트 보존 회귀 검사
 ├── docs/
 │   ├── getting-started.md        # 도구별 사용법
@@ -97,7 +99,7 @@ modu/
 
 검색과 필터는 브라우저에서 동작하며 서버로 데이터를 보내지 않습니다. 화면 글꼴은 Google Fonts의 Noto Sans KR·Noto Serif KR을 불러오며, 연결이 없으면 시스템 글꼴로 대체됩니다.
 
-스킬 폴더를 수정한 뒤에는 `python scripts/package_skills.py`로 ZIP 배포본을 갱신합니다. 개인정보를 채운 `organization-profile.md`는 패키지와 Git에서 제외합니다. 홈페이지 자체는 외부 라이브러리를 쓰지 않지만, 일부 기존 시연 HTML은 폰트와 차트 라이브러리를 CDN에서 불러옵니다.
+스킬 폴더를 수정한 뒤에는 `python scripts/package_skills.py`로 ZIP 배포본을 갱신합니다. `examples/`의 샘플을 고쳤다면 `node scripts/make_previews.js`(puppeteer 필요, 저장소 루트에서 `python -m http.server 8765` 실행 중일 때)와 `python scripts/optimize_previews.py`로 결과물 미리보기 이미지를 다시 만듭니다. 개인정보를 채운 `organization-profile.md`는 패키지와 Git에서 제외합니다. 홈페이지 자체는 외부 라이브러리를 쓰지 않지만, 일부 기존 시연 HTML은 폰트와 차트 라이브러리를 CDN에서 불러옵니다.
 
 `index.html`을 직접 열거나 저장소에서 `python -m http.server 8000` 실행 후 `http://localhost:8000`에 접속합니다. GitHub Pages 사용 시 저장소의 Settings → Pages → Build and deployment → Source를 **GitHub Actions**로 지정합니다. `.github/workflows/pages.yml`이 `main` 푸시 시 추적 중인 파일을 그대로 게시합니다.
 
