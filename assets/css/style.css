@@ -928,6 +928,171 @@ input:focus-visible,
   text-underline-offset: 3px;
 }
 
+/* ---------- 홈 스킬 찾기 ---------- */
+.skill-finder {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.search-box.large {
+  min-height: 54px;
+  padding: 0 18px;
+  gap: 10px;
+  border-color: var(--navy);
+}
+.search-box.large input {
+  font-size: 16px;
+}
+.search-box.large .icon {
+  color: var(--navy);
+}
+.search-suggest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.search-suggest > span {
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--faint);
+}
+.search-suggest button {
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--text);
+  border-radius: 999px;
+  font-size: 13px;
+  padding: 5px 14px;
+}
+.search-suggest button:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+
+/* ---------- 결과물 쇼케이스 (페이지 안에서 바로 보기) ---------- */
+.showcase {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.showcase-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.showcase-item {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0 10px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+}
+.showcase-item:hover {
+  border-color: var(--navy);
+}
+.showcase-item.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+.showcase-num {
+  grid-row: 1 / span 2;
+  font-family: var(--mono);
+  font-size: 15px;
+  color: var(--faint);
+  text-align: center;
+}
+.showcase-item.active .showcase-num {
+  color: rgba(255, 255, 255, 0.72);
+}
+.showcase-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.showcase-item.active .showcase-name {
+  color: #fff;
+}
+.showcase-kind {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.showcase-item.active .showcase-kind {
+  color: rgba(255, 255, 255, 0.72);
+}
+.showcase-stage {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.showcase-frame {
+  height: 560px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--line-soft);
+  overflow: auto;
+}
+.showcase-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+  background: #fff;
+}
+.showcase-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: top center;
+  background: #fff;
+}
+.showcase-frame .doc-tile {
+  height: 100%;
+}
+.showcase-text {
+  margin: 0;
+  padding: 24px 28px;
+  background: #fff;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.showcase-info {
+  padding: 18px 22px 20px;
+}
+.showcase-info h3 {
+  font-size: 19px;
+  margin-top: 6px;
+}
+.showcase-info p {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.showcase-info .result-meta {
+  margin-top: 12px;
+}
+.showcase-info .result-links {
+  margin-top: 14px;
+  padding-top: 0;
+}
+
 /* ---------- 표 ---------- */
 .data-table {
   border-top: 2px solid var(--navy);
@@ -1615,6 +1780,22 @@ input:focus-visible,
   .member-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .showcase {
+    grid-template-columns: 1fr;
+  }
+  .showcase-list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .showcase-item {
+    flex: 0 0 auto;
+    min-width: 190px;
+  }
+  .showcase-frame {
+    height: 440px;
+  }
   .library-tools {
     flex-direction: column;
     align-items: stretch;
@@ -1676,6 +1857,12 @@ input:focus-visible,
   .result-grid,
   .member-grid {
     grid-template-columns: 1fr;
+  }
+  .showcase-frame {
+    height: 360px;
+  }
+  .showcase-info {
+    padding: 16px 16px 18px;
   }
   .card-description {
     min-height: 0;

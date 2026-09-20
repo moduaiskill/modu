@@ -102,6 +102,38 @@
   function resultById(id) {
     return results.find((result) => result.id === id);
   }
+  function normalizeQuery(value) {
+    return (value || "").trim().normalize("NFKC").toLocaleLowerCase("ko");
+  }
+  function matchesQuery(skill, query) {
+    if (!query) return true;
+    return [
+      skill.id,
+      skill.title,
+      skill.description,
+      skill.categoryName,
+      skill.audience,
+      ...(skill.members || []),
+      ...skill.tags,
+    ]
+      .join(" ")
+      .normalize("NFKC")
+      .toLocaleLowerCase("ko")
+      .includes(query);
+  }
+  function categoryButtons() {
+    return categories.map((item) => {
+      const count =
+        item.id === "all"
+          ? skills.length
+          : skills.filter((skill) => skill.category === item.id).length;
+      const button = el("button", "filter", item.name + " ");
+      button.type = "button";
+      button.dataset.category = item.id;
+      button.append(el("span", "", String(count)));
+      return button;
+    });
+  }
   function toast(message) {
     const target = document.querySelector("#toast");
     if (!target) return;
@@ -213,6 +245,144 @@
     body.append(links);
     card.append(preview, body);
     return card;
+  }
+  function resultShowcase(items) {
+    const wrap = el("div", "showcase");
+    const list = el("div", "showcase-list");
+    list.setAttribute("role", "tablist");
+    list.setAttribute("aria-label", "결과물 목록");
+    const stage = el("div", "showcase-stage");
+    stage.id = "showcase-stage";
+    stage.setAttribute("role", "tabpanel");
+    const frame = el("div", "showcase-frame");
+    const info = el("div", "showcase-info");
+    stage.append(frame, info);
+
+    /* 좁은 화면에서는 문서를 축소해 한 폭에 담습니다. */
+    const FRAME_BASE_WIDTH = 900;
+    function fitFrame() {
+      const embed = frame.querySelector("iframe[data-fit]");
+      if (!embed || !frame.clientWidth) return;
+      const scale = Math.min(1, frame.clientWidth / FRAME_BASE_WIDTH);
+      if (scale >= 1) {
+        embed.removeAttribute("style");
+        return;
+      }
+      embed.style.width = FRAME_BASE_WIDTH + "px";
+      embed.style.height = Math.round(frame.clientHeight / scale) + "px";
+      embed.style.transformOrigin = "top left";
+      embed.style.transform = "scale(" + scale + ")";
+    }
+
+    function renderFrame(result) {
+      frame.replaceChildren();
+      if (/\.(html?|pdf)$/i.test(result.view)) {
+        const embed = el("iframe");
+        embed.src = result.view;
+        embed.title = result.title + " 미리보기";
+        embed.loading = "lazy";
+        if (!/\.pdf$/i.test(result.view)) embed.dataset.fit = "";
+        frame.append(embed);
+        fitFrame();
+        return;
+      }
+      if (result.preview) {
+        const img = el("img");
+        img.src = result.preview;
+        img.alt = result.alt || result.title + " 미리보기";
+        img.loading = "lazy";
+        frame.append(img);
+        return;
+      }
+      const tile = el("div", "doc-tile");
+      tile.append(el("b", "", result.tile || "DOC"), el("span", "", result.format));
+      frame.append(tile);
+      if (/\.(md|txt)$/i.test(result.view)) {
+        fetch(result.view)
+          .then((response) => (response.ok ? response.text() : Promise.reject()))
+          .then((text) => {
+            if (!frame.contains(tile)) return;
+            frame.replaceChildren(el("pre", "showcase-text", text));
+          })
+          .catch(() => {
+            /* 파일을 바로 읽을 수 없으면 표지 타일을 그대로 둡니다. */
+          });
+      }
+    }
+
+    function renderInfo(result) {
+      info.replaceChildren();
+      info.append(
+        el("span", "result-kind", result.number + " / " + result.kind),
+        el("h3", "", result.title),
+        el("p", "", result.description),
+      );
+      const meta = el("div", "result-meta");
+      meta.append(tag(result.format));
+      meta.append(
+        tag(
+          result.origin === "generated" ? "스킬로 만든 예시" : "제공된 시연 자료",
+          result.origin === "generated" ? "example" : "",
+        ),
+      );
+      const skill = result.skill && skillById(result.skill);
+      if (skill) meta.append(tag("스킬 · " + skill.title));
+      info.append(meta);
+      const links = el("div", "result-links");
+      links.append(link(result.view, "새 탭에서 크게 보기", "", true));
+      if (result.download) {
+        links.append(link(result.download, result.downloadLabel || "내려받기"));
+      }
+      if (skill) links.append(link("skill.html?id=" + skill.id, "스킬 보기"));
+      info.append(links);
+    }
+
+    const buttons = items.map((result, index) => {
+      const button = el("button", "showcase-item");
+      button.type = "button";
+      button.id = "showcase-tab-" + result.id;
+      button.setAttribute("role", "tab");
+      button.append(
+        el("span", "showcase-num", result.number),
+        el("span", "showcase-name", result.title),
+        el("span", "showcase-kind", result.kind),
+      );
+      button.addEventListener("click", () => select(index));
+      button.addEventListener("keydown", (event) => {
+        let next;
+        if (event.key === "ArrowDown" || event.key === "ArrowRight") next = (index + 1) % items.length;
+        if (event.key === "ArrowUp" || event.key === "ArrowLeft") next = (index - 1 + items.length) % items.length;
+        if (event.key === "Home") next = 0;
+        if (event.key === "End") next = items.length - 1;
+        if (next === undefined) return;
+        event.preventDefault();
+        select(next);
+        buttons[next].focus();
+      });
+      return button;
+    });
+
+    function select(index) {
+      buttons.forEach((button, order) => {
+        const active = order === index;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+        button.tabIndex = active ? 0 : -1;
+      });
+      stage.setAttribute("aria-labelledby", buttons[index].id);
+      renderFrame(items[index]);
+      renderInfo(items[index]);
+    }
+
+    list.append(...buttons);
+    wrap.append(list, stage);
+    if (items.length) select(0);
+    if (window.ResizeObserver) {
+      new ResizeObserver(fitFrame).observe(frame);
+    } else {
+      window.addEventListener("resize", fitFrame);
+    }
+    return wrap;
   }
   function memberCard(member) {
     const card = el("article", "member-card");
@@ -342,16 +512,83 @@
   }
 
   /* ---------- 페이지: 홈 ---------- */
-  function renderHome() {
-    const shared = skills.filter((skill) => skill.status !== "planned");
+  const HOME_SKILL_LIMIT = 6;
+  function setupHomeSearch() {
+    const grid = document.querySelector("#home-skills");
+    const search = document.querySelector("#home-search");
+    const filtersWrap = document.querySelector("#home-filters");
+    if (!grid || !search) return;
+    const ready = skills.filter((skill) => skill.status !== "planned");
     const planned = skills.filter((skill) => skill.status === "planned");
-    fill(
-      "home-skills",
-      [...shared, ...planned.slice(0, Math.max(0, 6 - shared.length))].map(skillCard),
+    const ordered = [...ready, ...planned];
+    const empty = document.querySelector("#home-empty");
+    let category = "all";
+    const buttons = categoryButtons();
+    if (filtersWrap) filtersWrap.replaceChildren(...buttons);
+    const update = () => {
+      buttons.forEach((button) => {
+        const active = button.dataset.category === category;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+      });
+      const query = normalizeQuery(search.value);
+      const matched = ordered.filter(
+        (skill) =>
+          (category === "all" || category === skill.category) &&
+          matchesQuery(skill, query),
+      );
+      const browsing = Boolean(query) || category !== "all";
+      const shown = browsing ? matched : matched.slice(0, HOME_SKILL_LIMIT);
+      grid.replaceChildren(...shown.map(skillCard));
+      const status = document.querySelector("#home-search-count");
+      if (status) {
+        status.replaceChildren();
+        status.append(
+          el("b", "", matched.length + "개"),
+          document.createTextNode(
+            browsing
+              ? " 스킬이 검색어와 일치합니다."
+              : " 중 " + shown.length + "개를 먼저 보여드립니다.",
+          ),
+        );
+      }
+      if (empty) empty.hidden = matched.length > 0;
+    };
+    buttons.forEach((button) =>
+      button.addEventListener("click", () => {
+        category = button.dataset.category;
+        update();
+      }),
     );
-    fill("home-results", results.slice(0, 3).map(resultCard));
+    search.addEventListener("input", update);
+    search.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && search.value) {
+        event.preventDefault();
+        search.value = "";
+        update();
+      }
+    });
+    document.querySelectorAll("[data-keyword]").forEach((button) =>
+      button.addEventListener("click", () => {
+        search.value = button.dataset.keyword;
+        category = "all";
+        update();
+        search.focus();
+      }),
+    );
+    document.querySelector("#home-reset")?.addEventListener("click", () => {
+      search.value = "";
+      category = "all";
+      update();
+      search.focus();
+    });
+    update();
+  }
+  function renderHome() {
+    setupHomeSearch();
+    fill("home-showcase", resultShowcase(results));
     setText("stat-shared", String(skills.filter((s) => s.status === "shared").length));
-    setText("stat-planned", String(planned.length));
+    setText("stat-planned", String(skills.filter((s) => s.status === "planned").length));
     setText("stat-results", String(results.length));
     const cohort = cohorts[0];
     if (cohort) {
@@ -395,17 +632,7 @@
     if (!grid || !search || !filtersWrap) return;
     let category = params.get("category") || "all";
     if (!categories.some((item) => item.id === category)) category = "all";
-    const buttons = categories.map((item) => {
-      const count =
-        item.id === "all"
-          ? skills.length
-          : skills.filter((skill) => skill.category === item.id).length;
-      const button = el("button", "filter", item.name + " ");
-      button.type = "button";
-      button.dataset.category = item.id;
-      button.append(el("span", "", String(count)));
-      return button;
-    });
+    const buttons = categoryButtons();
     filtersWrap.replaceChildren(...buttons);
     const update = () => {
       buttons.forEach((button) => {
@@ -413,23 +640,11 @@
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
-      const query = search.value.trim().normalize("NFKC").toLocaleLowerCase("ko");
+      const query = normalizeQuery(search.value);
       const shown = skills.filter(
         (skill) =>
           (category === "all" || category === skill.category) &&
-          [
-            skill.id,
-            skill.title,
-            skill.description,
-            skill.categoryName,
-            skill.audience,
-            ...(skill.members || []),
-            ...skill.tags,
-          ]
-            .join(" ")
-            .normalize("NFKC")
-            .toLocaleLowerCase("ko")
-            .includes(query),
+          matchesQuery(skill, query),
       );
       grid.replaceChildren(...shown.map(skillCard));
       const counts = { shared: 0, example: 0, planned: 0 };
@@ -707,7 +922,13 @@
     setText("crumb-current", cohort.name);
     fill("cohort-meta", [tag(cohort.period), tag(cohort.status, cohort.statusClass)]);
     fill("cohort-goal", el("p", "", cohort.goal));
-    fill("cohort-facts", factsTable(cohort.facts));
+    fill(
+      "cohort-facts",
+      factsTable([
+        ["참여자", cohort.members.map((member) => member.name).join(", ")],
+        ...cohort.facts,
+      ]),
+    );
 
     const timeline = el("ol", "timeline");
     cohort.weeks.forEach((week) => {
