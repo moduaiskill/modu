@@ -396,6 +396,24 @@
     }
     return card;
   }
+  /* 참여자 수는 기수 데이터의 participants를 먼저 씁니다. 명단에 성함이 다 있지는 않습니다. */
+  function cohortCount(cohort, key) {
+    if (key === "participants") return cohort.participants || cohort.members.length;
+    return 0;
+  }
+  function cohortFacts(cohort, variant) {
+    const facts = el("div", "cohort-facts" + (variant ? " " + variant : ""));
+    [
+      [cohortCount(cohort, "participants") + "명", "참여자"],
+      [cohort.skills.length + "개", "스킬 제작 후보"],
+      [cohort.results.length + "개", "결과물"],
+    ].forEach(([value, label]) => {
+      const item = el("div");
+      item.append(el("b", "", value), el("span", "", label));
+      facts.append(item);
+    });
+    return facts;
+  }
   function factsTable(rows) {
     const table = el("table", "data-table");
     const body = el("tbody");
@@ -594,32 +612,10 @@
     setText("stat-results", String(results.length));
     const cohort = cohorts[0];
     if (cohort) {
-      setText("stat-members", String(cohort.members.length));
-      setText("home-cohort-title", cohort.title);
+      setText("stat-members", String(cohortCount(cohort, "participants")));
+      setText("stat-planned", String(cohort.skills.length));
       setText("home-cohort-period", cohort.period + " · " + cohort.status);
-      setText("home-cohort-summary", cohort.summary);
-      const list = el("ol", "notice-list");
-      cohort.weeks.forEach((week) => {
-        const li = el("li");
-        li.append(
-          el("span", "date", "WEEK " + String(week.number).padStart(2, "0")),
-          link("cohort.html?id=" + cohort.id + "#week-" + week.number, week.title),
-          tag(week.status === "done" ? "완료" : "예정", week.status),
-        );
-        list.append(li);
-      });
-      fill("home-cohort-weeks", list);
-      const facts = el("div", "cohort-facts");
-      [
-        [cohort.members.length + "명", "참여자"],
-        [cohort.skills.length + "개", "스킬과 제작 후보"],
-        [cohort.results.length + "종", "결과물"],
-      ].forEach(([value, label]) => {
-        const item = el("div");
-        item.append(el("b", "", value), el("span", "", label));
-        facts.append(item);
-      });
-      fill("home-cohort-facts", facts);
+      fill("home-cohort-facts", cohortFacts(cohort, "outcome"));
       const cohortLink = document.getElementById("home-cohort-link");
       if (cohortLink) cohortLink.href = "cohort.html?id=" + cohort.id;
     }
@@ -885,17 +881,7 @@
       const top = el("div", "card-top");
       top.append(el("span", "period", cohort.period), tag(cohort.status, cohort.statusClass));
       card.append(top, el("h3", "", cohort.title), el("p", "", cohort.summary));
-      const facts = el("div", "cohort-facts");
-      [
-        [cohort.members.length + "명", "참여자"],
-        [cohort.skills.length + "개", "스킬과 제작 후보"],
-        [cohort.results.length + "종", "결과물"],
-      ].forEach(([value, label]) => {
-        const item = el("div");
-        item.append(el("b", "", value), el("span", "", label));
-        facts.append(item);
-      });
-      card.append(facts);
+      card.append(cohortFacts(cohort));
       const bottom = el("div", "card-bottom");
       const done = cohort.weeks.filter((week) => week.status === "done").length;
       bottom.append(
@@ -927,12 +913,14 @@
     fill(
       "cohort-facts",
       factsTable([
-        ["참여자", cohort.members.map((member) => member.name).join(", ")],
+        ["참여자", cohortCount(cohort, "participants") + "명"],
+        ["성함이 확인된 분", cohort.members.map((member) => member.name).join(", ")],
         ...cohort.facts,
       ]),
     );
 
     const timeline = el("ol", "timeline");
+    const pendingLabel = cohort.statusClass === "done" ? "기록 준비 중" : "예정";
     cohort.weeks.forEach((week) => {
       const li = el("li");
       li.id = "week-" + week.number;
@@ -940,7 +928,7 @@
       if (week.date) weekLabel.append(el("small", "", week.date));
       const body = el("div");
       const heading = el("h3", "", week.title + " ");
-      heading.append(tag(week.status === "done" ? "완료" : "예정", week.status));
+      heading.append(tag(week.status === "done" ? "완료" : pendingLabel, week.status));
       body.append(heading);
       if (week.place) body.append(el("p", "meta", week.place));
       if (week.summary) {
@@ -961,7 +949,10 @@
     setText("cohort-weeks-count", cohort.weeks.filter((w) => w.status === "done").length + " / " + cohort.weeks.length + "주차 기록");
 
     fill("cohort-members", cohort.members.map(memberCard));
-    setText("cohort-members-count", cohort.members.length + "명");
+    setText(
+      "cohort-members-count",
+      "전체 " + cohortCount(cohort, "participants") + "명 · 성함 확인 " + cohort.members.length + "명",
+    );
     const cohortSkills = cohort.skills.map(skillById).filter(Boolean);
     fill("cohort-skills", cohortSkills.map(skillCard));
     const shared = cohortSkills.filter((s) => s.status === "shared").length;

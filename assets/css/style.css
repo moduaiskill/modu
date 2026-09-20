@@ -1311,13 +1311,37 @@ input:focus-visible,
   color: var(--muted);
   margin-top: 12px;
 }
-.cohort-card .cohort-facts {
+.cohort-facts {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+}
+.cohort-card .cohort-facts {
   margin-top: 18px;
   padding-top: 16px;
   border-top: 1px solid var(--line-soft);
+}
+/* 홈의 기수 성과 — 숫자만 크게 */
+.cohort-facts.outcome {
+  gap: 0;
+}
+.cohort-facts.outcome > div {
+  padding: 4px 26px 0;
+  border-left: 1px solid var(--line-soft);
+}
+.cohort-facts.outcome > div:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+.cohort-facts.outcome b {
+  font-family: var(--serif);
+  font-size: 32px;
+  line-height: 1.2;
+  color: var(--navy);
+}
+.cohort-facts.outcome span {
+  font-size: 13px;
+  margin-top: 4px;
 }
 .cohort-facts b {
   display: block;
@@ -1922,6 +1946,15 @@ input:focus-visible,
   }
   .cohort-facts b {
     font-size: 17px;
+  }
+  .cohort-facts.outcome > div {
+    padding: 4px 12px 0;
+  }
+  .cohort-facts.outcome b {
+    font-size: 24px;
+  }
+  .cohort-facts.outcome span {
+    font-size: 12px;
   }
   .usage-tabs button {
     padding: 10px 10px;
