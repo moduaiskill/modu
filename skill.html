@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#12253f" />
+    <meta name="description" content="모두의 AI Skill 스킬 소개. 사용자, 작업 흐름, 폴더 구성, 요구 환경과 이 스킬로 만든 결과물을 소개합니다." />
+    <title>스킬 소개 — 모두의 AI Skill</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600&display=swap" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="assets/js/catalog.js" defer></script>
+    <script src="assets/js/results.js" defer></script>
+    <script src="assets/js/cohorts.js" defer></script>
+    <script src="assets/js/site.js" defer></script>
+  </head>
+  <body data-page="skill" data-nav="skills">
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <div class="utility-bar">
+      <div class="container utility-inner">
+        <span>모두의 AX 도구함 TF · 제주 개방형 커뮤니티</span>
+        <div class="utility-links">
+          <a href="https://github.com/moduaiskill/modu" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/moduaiskill/modu/issues/new" target="_blank" rel="noopener noreferrer">아이디어 제안</a>
+          <a href="CONTRIBUTING.md">기여 가이드</a>
+        </div>
+      </div>
+    </div>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="모두의 AI Skill 홈">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-text"><b>모두의 AI Skill</b><span>모두의 AX 도구함 TF</span></span>
+        </a>
+        <button class="menu-toggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="navigation" class="site-nav" aria-label="주 메뉴">
+          <a href="about.html" data-nav="about">소개</a>
+          <a href="skills.html" data-nav="skills">스킬</a>
+          <a href="results.html" data-nav="results">결과물</a>
+          <a href="cohorts.html" data-nav="cohorts">기수 활동</a>
+          <a href="guide.html" data-nav="guide">사용 가이드</a>
+          <a class="nav-cta" href="join.html" data-nav="join">참여하기</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div id="skill-detail">
+        <div class="page-head">
+          <div class="container">
+            <nav class="breadcrumb" aria-label="현재 위치">
+              <a href="index.html">홈</a><span aria-hidden="true">/</span>
+              <a href="skills.html">스킬</a><span aria-hidden="true">/</span>
+              <a id="crumb-category" href="skills.html">분야</a><span aria-hidden="true">/</span>
+              <span id="crumb-current">스킬</span>
+            </nav>
+            <h1 id="skill-title">스킬 소개</h1>
+            <p class="lead" id="skill-lead"></p>
+            <div class="head-meta" id="skill-meta"></div>
+          </div>
+        </div>
+        <section class="section" aria-label="스킬 상세">
+          <div class="container detail-layout">
+            <div id="skill-sections"></div>
+            <aside id="skill-side" class="detail-side" aria-label="파일과 요약"></aside>
+          </div>
+        </section>
+      </div>
+      <div id="skill-missing" hidden>
+        <div class="page-head">
+          <div class="container">
+            <nav class="breadcrumb" aria-label="현재 위치"><a href="index.html">홈</a><span aria-hidden="true">/</span><a href="skills.html">스킬</a></nav>
+            <h1>찾는 스킬이 없습니다</h1>
+            <p class="lead">주소의 스킬 이름을 확인하거나 스킬 라이브러리에서 다시 선택해 주세요.</p>
+            <div class="head-meta"><a class="button" href="skills.html">스킬 라이브러리로 이동</a></div>
+          </div>
+        </div>
+      </div>
+      <noscript>
+        <div class="container section">
+          <p class="note">스킬 소개 표시에는 JavaScript가 필요합니다. <a href="skills/business/public-bid-proposal/SKILL.md">입찰 제안서 스킬</a>, <a href="skills/public/md-to-hwpx/SKILL.md">HWPX 변환 스킬</a>, <a href="skills/common/meeting-notes/SKILL.md">회의록 정리 예제</a>를 직접 확인할 수 있습니다.</p>
+        </div>
+      </noscript>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <a class="brand" href="index.html">
+              <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <span class="brand-text"><b>모두의 AI Skill</b><span>모두의 AX 도구함 TF</span></span>
+            </a>
+            <p>한 사람의 노하우를 모두가 가져다 쓸 수 있는 AI 스킬로. 제주에서 시작한 개방형 TF의 공개 스킬 저장소입니다.</p>
+          </div>
+          <div>
+            <h2>둘러보기</h2>
+            <ul>
+              <li><a href="about.html">TF 소개</a></li>
+              <li><a href="skills.html">스킬 라이브러리</a></li>
+              <li><a href="results.html">결과물</a></li>
+              <li><a href="cohorts.html">기수 활동</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>사용과 참여</h2>
+            <ul>
+              <li><a href="guide.html">사용 가이드</a></li>
+              <li><a href="join.html">참여하기</a></li>
+              <li><a href="docs/skill-standard.md">스킬 제작 규격</a></li>
+              <li><a href="recommended/README.md">외부 참고자료</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>저장소</h2>
+            <ul>
+              <li><a href="https://github.com/moduaiskill/modu" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+              <li><a href="https://github.com/moduaiskill/modu/issues" target="_blank" rel="noopener noreferrer">Issues</a></li>
+              <li><a href="https://github.com/moduaiskill/modu/archive/refs/heads/main.zip">전체 ZIP 받기</a></li>
+              <li><a href="LICENSE">MIT License</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 모두의 AI Skill · 모두의 AX 도구함 TF</span>
+          <span>직접 제작한 스킬과 웹 코드는 MIT 라이선스. 외부 자료는 원저작자의 라이선스를 따릅니다.</span>
+        </div>
+      </div>
+    </footer>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

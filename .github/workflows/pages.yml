@@ -30,6 +30,9 @@ jobs:
           mkdir _site
           git archive --format=tar HEAD | tar -xf - -C _site
           test -f _site/index.html
+          test -f _site/skills.html
+          test -f _site/cohort.html
+          test -f _site/assets/js/site.js
           test -f _site/assets/social/modu-ai-skill-og.png
           test -f _site/downloads/md-to-hwpx.zip
       - name: Upload artifact

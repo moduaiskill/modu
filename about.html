@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#12253f" />
+    <meta name="description" content="모두의 AX 도구함 TF 소개. 왜 시작했는지, 무엇을 만드는지, 어떻게 운영하는지와 산출물 원칙을 소개합니다." />
+    <title>TF 소개 — 모두의 AI Skill</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@600&display=swap" />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="assets/js/catalog.js" defer></script>
+    <script src="assets/js/results.js" defer></script>
+    <script src="assets/js/cohorts.js" defer></script>
+    <script src="assets/js/site.js" defer></script>
+  </head>
+  <body data-page="about" data-nav="about">
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <div class="utility-bar">
+      <div class="container utility-inner">
+        <span>모두의 AX 도구함 TF · 제주 개방형 커뮤니티</span>
+        <div class="utility-links">
+          <a href="https://github.com/moduaiskill/modu" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://github.com/moduaiskill/modu/issues/new" target="_blank" rel="noopener noreferrer">아이디어 제안</a>
+          <a href="CONTRIBUTING.md">기여 가이드</a>
+        </div>
+      </div>
+    </div>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="index.html" aria-label="모두의 AI Skill 홈">
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+          <span class="brand-text"><b>모두의 AI Skill</b><span>모두의 AX 도구함 TF</span></span>
+        </a>
+        <button class="menu-toggle" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="navigation">
+          <span></span><span></span><span></span>
+        </button>
+        <nav id="navigation" class="site-nav" aria-label="주 메뉴">
+          <a href="about.html" data-nav="about">소개</a>
+          <a href="skills.html" data-nav="skills">스킬</a>
+          <a href="results.html" data-nav="results">결과물</a>
+          <a href="cohorts.html" data-nav="cohorts">기수 활동</a>
+          <a href="guide.html" data-nav="guide">사용 가이드</a>
+          <a class="nav-cta" href="join.html" data-nav="join">참여하기</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="page-head">
+        <div class="container">
+          <nav class="breadcrumb" aria-label="현재 위치"><a href="index.html">홈</a><span aria-hidden="true">/</span><span>소개</span></nav>
+          <h1>모두의 AX 도구함 TF</h1>
+          <p class="lead">공공기관·기업·학생 등 분야별로 필요한 AI 스킬을 함께 만들어 GitHub에 공개하고, 누구나 가져다 자기 업무 환경에 세팅해 쓸 수 있게 하는 제주 기반 개방형 TF입니다.</p>
+        </div>
+      </div>
+
+      <section class="section" aria-labelledby="why-title">
+        <div class="container two-col">
+          <div>
+            <span class="overline">Why</span>
+            <h2 id="why-title" style="font-family: var(--serif); font-weight: 600; font-size: 28px">왜 시작했나</h2>
+            <div class="prose" style="margin-top: 16px">
+              <p>AI에게 무엇이든 물어보면 높은 수준의 답이 나오는 시대입니다. 하지만 이 도구를 자기 업무 환경에 실제로 세팅해서 쓰는 사람과 그렇지 않은 사람의 격차는 계속 벌어지고 있습니다. 이 격차를 개인의 노력에만 맡기지 않고, 공동체가 함께 메우는 방식을 제주에서 실험합니다.</p>
+              <p>필요한 건 거창한 무언가가 아니라 환경 세팅입니다. 지금 업무와 학습에 당장 쓸 수 있는 것부터 만듭니다.</p>
+              <p>제주는 규모가 아니라 밀도로 움직입니다. 한 번 만든 도구가 옆 사무실, 옆 학교로 빠르게 퍼집니다.</p>
+            </div>
+          </div>
+          <div class="values">
+            <article>
+              <span>격차</span>
+              <h3>AI 격차를 공동체의 지식 축적으로 메웁니다</h3>
+              <p>개인의 학습 속도에 맡기지 않습니다. 업종별·기관별 스킬을 한곳에 모아 두고 누구나 가져다 씁니다.</p>
+            </article>
+            <article>
+              <span>세팅</span>
+              <h3>당장 쓸 수 있는 것부터 만듭니다</h3>
+              <p>견적서, 보고서, 수업 자료처럼 현장에서 반복되는 작은 업무가 첫 대상입니다.</p>
+            </article>
+            <article>
+              <span>도구함</span>
+              <h3>스킬, 에이전트, 프롬프트를 한곳에 둡니다</h3>
+              <p>한곳에 모아 두고 누구나 비용 없이 가져다 쓰게 하는 것이 도구함이라는 이름의 뜻입니다.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section soft" aria-labelledby="what-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <span class="overline">What</span>
+              <h2 id="what-title">무엇을 만드나</h2>
+              <p>분야별로 나눠 스킬을 제작하고 결과물은 전부 GitHub에 공개합니다.</p>
+            </div>
+            <a class="text-link" href="skills.html">스킬 라이브러리 <svg class="icon small"><use href="#i-arrow" /></svg></a>
+          </div>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead><tr><th>분야</th><th>대표 업무</th><th>현재 상태</th></tr></thead>
+              <tbody>
+                <tr><td>기업·스타트업</td><td>보고서·견적서·제안서 등 정형 문서를 회사 양식대로 생성, 반복 문서 정리</td><td><a href="skill.html?id=public-bid-proposal">공공 입찰 제안서</a> 공유 · 문서 스킬 제작 후보</td></tr>
+                <tr><td>공공기관</td><td>근태·휴가 대조, 결재 기안 정리 같은 반복 행정, 한글 문서 변환</td><td><a href="skill.html?id=md-to-hwpx">마크다운을 한글 문서로</a> 공유 · 행정 스킬 제작 후보</td></tr>
+                <tr><td>교육</td><td>수업·과목별 업무 지원, 학교안전사고 유형 분석</td><td>제작 후보</td></tr>
+                <tr><td>목회</td><td>주중 묵상자료 피드백</td><td>제작 후보</td></tr>
+                <tr><td>광고·마케팅</td><td>학생 프로젝트용 사례 조사와 자료 갈무리</td><td>제작 후보</td></tr>
+                <tr><td>디자인·개발</td><td>디자인이 익숙하지 않은 사람을 위한 도구</td><td>제작 후보</td></tr>
+                <tr><td>공통</td><td>회의록 정리</td><td><a href="skill.html?id=meeting-notes">시작 예제</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="how-title">
+        <div class="container two-col">
+          <div>
+            <span class="overline">How</span>
+            <h2 id="how-title" style="font-family: var(--serif); font-weight: 600; font-size: 28px">어떻게 운영하나</h2>
+            <div class="prose" style="margin-top: 16px">
+              <p>개발 경험은 필수가 아닙니다. 오히려 "내 일에서 이게 제일 귀찮다"는 현장의 문제를 아는 사람이 가장 귀한 참여자입니다. 문제를 가진 사람과 스킬을 만들 수 있는 사람이 만나는 구조입니다.</p>
+              <p>운영 기간과 소통 방식은 1주차 회의록을 우선합니다. 세부 모임 시간은 결정 칸이 비어 있어 확정 일정으로 안내하지 않습니다.</p>
+            </div>
+            <a class="text-link" href="cohorts.html" style="margin-top: 18px">기수 활동 보기 <svg class="icon small"><use href="#i-arrow" /></svg></a>
+          </div>
+          <table class="data-table">
+            <tbody>
+              <tr><th>정기 모임</th><td>주 1회 온라인. 제작 중인 스킬 공유, 막힌 부분 해결, 현장 사례 공유</td></tr>
+              <tr><th>운영 단위</th><td>기수제, 한 기수 최대 1개월</td></tr>
+              <tr><th>소통</th><td>카카오톡 공지 · 위니브 스페이스</td></tr>
+              <tr><th>결과물 저장소</th><td>GitHub 조직 moduaiskill, 모노레포, 전면 공개</td></tr>
+              <tr><th>참여 대상</th><td>제주에 있는 누구나. 공무원·직장인·자영업자·교사·학생</td></tr>
+              <tr><th>참가 비용</th><td>없음</td></tr>
+              <tr><th>라이선스</th><td>직접 제작한 스킬과 웹 코드는 MIT</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section soft" aria-labelledby="principle-title">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <span class="overline">Principles</span>
+              <h2 id="principle-title">범용 스킬의 원칙</h2>
+              <p>어느 도구에서든 같은 폴더를 가져다 쓸 수 있도록 지킵니다.</p>
+            </div>
+            <a class="text-link" href="docs/skill-standard.md">제작 규격 문서 <svg class="icon small"><use href="#i-up-right" /></svg></a>
+          </div>
+          <ul class="check-list" style="max-width: 820px">
+            <li>공통 진입점은 name과 description이 있는 Markdown 파일 SKILL.md입니다.</li>
+            <li>핵심 지침은 특정 모델, 유료 서비스, 전용 명령에 의존하지 않게 작성합니다.</li>
+            <li>일반 채팅에서는 지침을 붙여 넣어 재사용합니다. 자동 검색·호출과 스크립트 실행은 도구마다 지원 범위가 다릅니다.</li>
+            <li>외부 도구가 필요하면 요구 환경을 명시합니다. 모든 모델에서 동일한 결과가 보장된다는 의미는 아닙니다.</li>
+            <li>직접 제작한 스킬과 웹 코드는 MIT 라이선스로 공유합니다. AI 서비스 이용료는 각 서비스 정책을 따르며, 외부 자료에는 원저작자의 라이선스가 적용됩니다.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="who-title">
+        <div class="container two-col">
+          <div>
+            <span class="overline">Who</span>
+            <h2 id="who-title" style="font-family: var(--serif); font-weight: 600; font-size: 28px">주체</h2>
+            <div class="prose" style="margin-top: 16px">
+              <p>㈜위니브(제주 소재 ICT 교육기업) 대표 이호준이 발의하고 운영합니다. 다만 위니브의 사업이라기보다 제주의 개방형 커뮤니티 활동에 가깝습니다.</p>
+              <p>제주대 RISE 사업 제안에 들어간 '모두의 AX 도구함' 프로그램은 이 TF의 학생 버전이며 별도 프로젝트로 봅니다.</p>
+            </div>
+          </div>
+          <ul class="link-list">
+            <li><a href="1주차.md"><span>1기 킥오프 회의록 원문</span><span>2026. 9. 6</span></a></li>
+            <li><a href="프로젝트 소개.md"><span>프로젝트 배경 원문</span><span>Markdown</span></a></li>
+            <li><a href="CONTRIBUTING.md"><span>기여 가이드</span><span>Markdown</span></a></li>
+            <li><a href="https://github.com/moduaiskill/modu" target="_blank" rel="noopener noreferrer"><span>GitHub 저장소</span><span>moduaiskill/modu</span></a></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <div class="footer-inner">
+          <div class="footer-brand">
+            <a class="brand" href="index.html">
+              <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <span class="brand-text"><b>모두의 AI Skill</b><span>모두의 AX 도구함 TF</span></span>
+            </a>
+            <p>한 사람의 노하우를 모두가 가져다 쓸 수 있는 AI 스킬로. 제주에서 시작한 개방형 TF의 공개 스킬 저장소입니다.</p>
+          </div>
+          <div>
+            <h2>둘러보기</h2>
+            <ul>
+              <li><a href="about.html">TF 소개</a></li>
+              <li><a href="skills.html">스킬 라이브러리</a></li>
+              <li><a href="results.html">결과물</a></li>
+              <li><a href="cohorts.html">기수 활동</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>사용과 참여</h2>
+            <ul>
+              <li><a href="guide.html">사용 가이드</a></li>
+              <li><a href="join.html">참여하기</a></li>
+              <li><a href="docs/skill-standard.md">스킬 제작 규격</a></li>
+              <li><a href="recommended/README.md">외부 참고자료</a></li>
+            </ul>
+          </div>
+          <div>
+            <h2>저장소</h2>
+            <ul>
+              <li><a href="https://github.com/moduaiskill/modu" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+              <li><a href="https://github.com/moduaiskill/modu/issues" target="_blank" rel="noopener noreferrer">Issues</a></li>
+              <li><a href="https://github.com/moduaiskill/modu/archive/refs/heads/main.zip">전체 ZIP 받기</a></li>
+              <li><a href="LICENSE">MIT License</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <span>© 2026 모두의 AI Skill · 모두의 AX 도구함 TF</span>
+          <span>직접 제작한 스킬과 웹 코드는 MIT 라이선스. 외부 자료는 원저작자의 라이선스를 따릅니다.</span>
+        </div>
+      </div>
+    </footer>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>

@@ -18,7 +18,9 @@ GitHub가 익숙하지 않은 1기 참여자는 회의록에 안내된 카카오
 
 ## 홈페이지에 소개하기
 
-`assets/js/catalog.js`를 수정합니다. 제작 전에는 `planned` 상태를 유지합니다. 배포 파일이 준비되면 `shared`로 바꾸고 실제 `SKILL.md`와 ZIP 경로, 요구 환경을 연결합니다. 공유 상태와 최종 검수 완료는 구분합니다. 새 항목에는 고유한 `id`를 사용합니다.
+`assets/js/catalog.js`를 수정합니다. 제작 전에는 `planned` 상태를 유지합니다. 배포 파일이 준비되면 `shared`로 바꾸고 실제 `SKILL.md`와 ZIP 경로, 요구 환경, 소개 문단·작업 흐름·폴더 구성을 채웁니다. 공유 상태와 최종 검수 완료는 구분합니다. 새 항목에는 고유한 `id`를 사용하며, 스킬 상세 페이지는 `skill.html?id=<id>`로 열립니다.
+
+스킬로 만든 결과물은 `examples/`에 파일을 두고 `assets/js/results.js`에 항목을 추가한 뒤, 스킬 항목의 `results`에 결과물 `id`를 연결합니다. 가상 데이터로 만든 예시는 `origin: "generated"`로 표시합니다. 기수 활동 기록은 `assets/js/cohorts.js`에서 갱신합니다.
 
 스킬 수정 후 `python scripts/package_skills.py`로 ZIP도 갱신합니다. 이 스크립트는 현재 공유 중인 2개 스킬을 패키징하며 새 공유 스킬은 스크립트의 목록에도 추가합니다.
 
