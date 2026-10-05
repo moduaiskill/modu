@@ -1446,6 +1446,117 @@ input:focus-visible,
   margin-top: 12px;
 }
 
+.member-card.published {
+  border-color: #c5dccb;
+}
+.member-card .text-link + .text-link {
+  margin-top: 4px;
+}
+.member-card .text-link {
+  display: flex;
+  width: fit-content;
+}
+.tag.maker {
+  color: var(--navy);
+  border-color: #c6d4e6;
+  background: #fff;
+}
+
+/* ---------- 홈 1기 성과: 참여자가 만든 스킬 ---------- */
+.maker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px 20px;
+}
+.maker-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.maker-card:hover {
+  border-color: var(--navy);
+  box-shadow: 0 4px 16px rgba(27, 51, 88, 0.08);
+}
+.maker-preview {
+  display: block;
+  height: 176px;
+  overflow: hidden;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+.maker-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: transform 0.3s;
+}
+.maker-card:hover .maker-preview img {
+  transform: scale(1.02);
+}
+.maker-preview .doc-tile {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  color: var(--navy);
+  background: repeating-linear-gradient(0deg, #fff 0 22px, var(--line-soft) 22px 23px);
+}
+.maker-preview .doc-tile b {
+  font-size: 22px;
+}
+.maker-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 18px 20px 16px;
+}
+.maker-who {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.maker-who .icon {
+  width: 15px;
+  height: 15px;
+  color: var(--navy);
+}
+.maker-who b {
+  color: var(--ink);
+}
+.maker-card h3 {
+  font-size: 18px;
+  line-height: 1.45;
+  margin-top: 6px;
+}
+.maker-card h3 a:hover {
+  color: var(--navy);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.maker-text {
+  font-size: 13.5px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.maker-card.invite {
+  background: var(--bg-soft);
+  border-style: dashed;
+  justify-content: center;
+}
+.maker-card.invite .maker-body {
+  flex: 0 1 auto;
+  padding: 28px 24px;
+}
+
 /* ---------- 스킬 상세 ---------- */
 .detail-layout {
   display: grid;
@@ -1836,6 +1947,7 @@ input:focus-visible,
   }
   .skill-grid,
   .result-grid,
+  .maker-grid,
   .member-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1914,6 +2026,7 @@ input:focus-visible,
   }
   .skill-grid,
   .result-grid,
+  .maker-grid,
   .member-grid {
     grid-template-columns: 1fr;
   }

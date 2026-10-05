@@ -6,6 +6,11 @@ ROOT = Path(__file__).resolve().parents[1]
 SKILLS = (
     ROOT / "skills/business/public-bid-proposal",
     ROOT / "skills/public/md-to-hwpx",
+    ROOT / "skills/marketing/case-to-project",
+    ROOT / "skills/business/quote-issue",
+    ROOT / "skills/design-development/vibe-spec",
+    ROOT / "skills/education/quote-to-pumui",
+    ROOT / "skills/education/pyeongga-gyehoek-hwpx",
 )
 EXCLUDED = {"organization-profile.md", "__pycache__", ".DS_Store", "Thumbs.db"}
 

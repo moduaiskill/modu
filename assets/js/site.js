@@ -96,8 +96,30 @@
     const target = document.getElementById(id);
     if (target) target.textContent = text;
   }
+  /* 제작 후보가 공유 스킬로 바뀌며 id가 달라져도 예전 링크가 이어지도록 aliases도 찾습니다. */
   function skillById(id) {
-    return skills.find((skill) => skill.id === id);
+    return (
+      skills.find((skill) => skill.id === id) ||
+      skills.find((skill) => (skill.aliases || []).includes(id))
+    );
+  }
+  /* 1기 참여자가 만들어 공개한 스킬 */
+  function isMemberSkill(skill) {
+    return skill.status !== "planned" && Boolean(skill.members && skill.members.length);
+  }
+  const ORIGIN_LABEL = {
+    generated: ["스킬로 만든 예시", "example"],
+    member: ["참여자 업무 결과물", "example"],
+    provided: ["제공된 시연 자료", ""],
+  };
+  function originTags(result) {
+    const [label, className] = ORIGIN_LABEL[result.origin] || ORIGIN_LABEL.provided;
+    const tags = [tag(label, className)];
+    if (result.maker) tags.push(tag("만든 사람 · " + result.maker, "maker"));
+    return tags;
+  }
+  function firstPreview(skill) {
+    return (skill.results || []).map(resultById).find((result) => result && result.preview);
   }
   function resultById(id) {
     return results.find((result) => result.id === id);
@@ -183,9 +205,11 @@
       skill.status === "planned"
         ? (skill.cohort ? skill.cohort + "기 제작 후보" : "제작 후보") +
           (skill.members ? " · " + skill.members.join(", ") : "")
-        : skill.download
-          ? "폴더 · 스크립트 포함"
-          : "SKILL.md 하나로 사용";
+        : isMemberSkill(skill)
+          ? "만든 사람 · " + skill.members.join(", ")
+          : skill.download
+            ? "폴더 · 스크립트 포함"
+            : "SKILL.md 하나로 사용";
     bottom.append(el("span", "", meta), textLink("skill.html?id=" + skill.id, "자세히"));
     card.append(
       top,
@@ -198,6 +222,7 @@
   }
   function resultCard(result, options) {
     const card = el("article", "result-card");
+    card.id = "result-" + result.id;
     const preview = el("div", "result-preview");
     if (result.preview) {
       const img = el("img");
@@ -219,13 +244,7 @@
       el("p", "", result.description),
     );
     const meta = el("div", "result-meta");
-    meta.append(tag(result.format));
-    meta.append(
-      tag(
-        result.origin === "generated" ? "스킬로 만든 예시" : "제공된 시연 자료",
-        result.origin === "generated" ? "example" : "",
-      ),
-    );
+    meta.append(tag(result.format), ...originTags(result));
     const skill = result.skill && skillById(result.skill);
     if (skill && !(options && options.hideSkill)) {
       const skillTag = tag("스킬 · " + skill.title);
@@ -323,13 +342,7 @@
         el("p", "", result.description),
       );
       const meta = el("div", "result-meta");
-      meta.append(tag(result.format));
-      meta.append(
-        tag(
-          result.origin === "generated" ? "스킬로 만든 예시" : "제공된 시연 자료",
-          result.origin === "generated" ? "example" : "",
-        ),
-      );
+      meta.append(tag(result.format), ...originTags(result));
       const skill = result.skill && skillById(result.skill);
       if (skill) meta.append(tag("스킬 · " + skill.title));
       info.append(meta);
@@ -386,14 +399,83 @@
     if (items.length) select(0);
     return wrap;
   }
+  /* 홈의 1기 성과 — 참여자가 만든 스킬을 결과물 미리보기와 함께 보여 줍니다. */
+  function makerCard(skill) {
+    const card = el("article", "maker-card");
+    const preview = el("a", "maker-preview");
+    preview.href = "skill.html?id=" + skill.id;
+    preview.tabIndex = -1;
+    preview.setAttribute("aria-hidden", "true");
+    const shot = firstPreview(skill);
+    if (shot) {
+      const img = el("img");
+      img.src = shot.preview;
+      img.alt = "";
+      img.loading = "lazy";
+      img.width = 720;
+      img.height = 450;
+      preview.append(img);
+    } else {
+      const tile = el("div", "doc-tile");
+      tile.append(el("b", "", skill.tags[0] || "SKILL"), el("span", "", skill.tags.slice(1).join(" · ") || skill.categoryName));
+      preview.append(tile);
+    }
+    const body = el("div", "maker-body");
+    const who = el("p", "maker-who");
+    who.append(icon(skill.icon), document.createTextNode(skill.categoryName + " · "), el("b", "", skill.members.join(", ")));
+    const heading = el("h3");
+    heading.append(link("skill.html?id=" + skill.id, skill.title));
+    body.append(who, heading, el("p", "maker-text", skill.description));
+    const links = el("div", "result-links");
+    links.append(link("skill.html?id=" + skill.id, "스킬 보기"));
+    if (shot) links.append(link("results.html#result-" + shot.id, "결과물 보기"));
+    if (skill.download) {
+      const zip = link(skill.download, "ZIP 받기");
+      zip.setAttribute("download", "");
+      links.append(zip);
+    }
+    body.append(links);
+    card.append(preview, body);
+    return card;
+  }
+  function joinCard() {
+    const card = el("article", "maker-card invite");
+    const body = el("div", "maker-body");
+    body.append(
+      el("p", "maker-who", "함께 만들 분을 기다립니다"),
+      el("h3", "", "다음 스킬은 당신의 업무에서"),
+      el(
+        "p",
+        "maker-text",
+        "개발 경험이 없어도 괜찮습니다. 매번 손으로 하던 일 하나를 알려 주시면, 함께 스킬로 만들고 피드백합니다.",
+      ),
+    );
+    const links = el("div", "result-links");
+    links.append(link("join.html", "참여 방법 보기"));
+    body.append(links);
+    card.append(body);
+    return card;
+  }
   function memberCard(member) {
     const card = el("article", "member-card");
     card.append(el("span", "field", member.field), el("h3", "", member.name));
     card.append(el("p", "", member.plan));
-    const skill = member.skill && skillById(member.skill);
-    if (skill) {
-      card.append(textLink("skill.html?id=" + skill.id, "제작 후보 · " + skill.title));
-    }
+    const own = (member.skills || (member.skill ? [member.skill] : []))
+      .map(skillById)
+      .filter(Boolean);
+    own.forEach((skill) =>
+      card.append(
+        textLink(
+          "skill.html?id=" + skill.id,
+          (skill.status === "planned" ? "제작 후보 · " : "공개 스킬 · ") + skill.title,
+        ),
+      ),
+    );
+    (member.results || [])
+      .map(resultById)
+      .filter(Boolean)
+      .forEach((result) => card.append(textLink("results.html#result-" + result.id, "결과물 · " + result.title)));
+    if (own.some((skill) => skill.status !== "planned")) card.classList.add("published");
     return card;
   }
   /* 참여자 수는 기수 데이터의 participants를 먼저 씁니다. 명단에 성함이 다 있지는 않습니다. */
@@ -403,9 +485,11 @@
   }
   function cohortFacts(cohort, variant) {
     const facts = el("div", "cohort-facts" + (variant ? " " + variant : ""));
+    const made = cohort.skills.map(skillById).filter((skill) => skill && isMemberSkill(skill));
+    const makers = new Set(made.flatMap((skill) => skill.members));
     [
       [cohortCount(cohort, "participants") + "명", "참여자"],
-      [cohort.skills.length + "개", "스킬 제작 후보"],
+      [made.length + "개", "참여자가 만든 스킬 · " + makers.size + "명 제작"],
       [cohort.results.length + "개", "결과물"],
     ].forEach(([value, label]) => {
       const item = el("div");
@@ -606,16 +690,23 @@
   }
   function renderHome() {
     setupHomeSearch();
-    fill("home-showcase", resultShowcase(results));
+    /* 참여자가 만든 결과물을 먼저 보여 줍니다. */
+    const showcase = [...results.filter((r) => r.maker), ...results.filter((r) => !r.maker)];
+    fill("home-showcase", resultShowcase(showcase));
+    const made = skills.filter(isMemberSkill);
     setText("stat-shared", String(skills.filter((s) => s.status === "shared").length));
-    setText("stat-planned", String(skills.filter((s) => s.status === "planned").length));
+    setText("stat-made", String(made.length));
     setText("stat-results", String(results.length));
+    fill("home-makers", [...made.map(makerCard), joinCard()]);
     const cohort = cohorts[0];
     if (cohort) {
+      const makers = new Set(made.filter((s) => s.cohort === cohort.id).flatMap((s) => s.members));
       setText("stat-members", String(cohortCount(cohort, "participants")));
-      setText("stat-planned", String(cohort.skills.length));
-      setText("home-cohort-period", cohort.period + " · " + cohort.status);
-      fill("home-cohort-facts", cohortFacts(cohort, "outcome"));
+      setText(
+        "home-cohort-period",
+        cohort.period + " · 참여자 " + makers.size + "명이 업무 스킬 " +
+          made.filter((s) => s.cohort === cohort.id).length + "개를 만들어 공개했습니다.",
+      );
       const cohortLink = document.getElementById("home-cohort-link");
       if (cohortLink) cohortLink.href = "cohort.html?id=" + cohort.id;
     }
@@ -722,8 +813,12 @@
       factsTable([
         ["사용자", skill.audience],
         ["기대하는 변화", skill.benefit],
-        ...(skill.origin ? [["출처", skill.origin]] : []),
-        ...(skill.members ? [["제작 참여", skill.members.join(", ") + " (" + skill.cohort + "기)"]] : []),
+        ...(skill.reason ? [["만든 이유", skill.reason]] : []),
+        ...(skill.origin && !isMemberSkill(skill) ? [["출처", skill.origin]] : []),
+        ...(skill.members
+          ? [[isMemberSkill(skill) ? "만든 사람" : "제작 참여", skill.members.join(", ") + " (" + skill.cohort + "기)"]]
+          : []),
+        ...(skill.verification ? [["확인한 결과", skill.verification]] : []),
       ]),
     );
     if (skill.inputs) section("필요한 입력", checkList(skill.inputs));
@@ -750,6 +845,15 @@
       pre.append(el("code", "", skill.usageExample));
       box.append(toolbar, pre);
       section("사용 예시", box, "환경별 설치 방법은 사용 가이드 참고");
+    }
+    if (skill.sampleOutput) {
+      const box = el("div", "code-box");
+      const toolbar = el("div", "code-toolbar");
+      toolbar.append(el("span", "", skill.sampleOutput.label || "결과 예시"));
+      const pre = el("pre");
+      pre.append(el("code", "", skill.sampleOutput.text));
+      box.append(toolbar, pre);
+      section("결과 예시", box);
     }
     if (skill.files) {
       const tree = el("ul", "file-tree");
@@ -838,7 +942,10 @@
         button.classList.toggle("active", active);
         button.setAttribute("aria-pressed", String(active));
       });
-      const shown = results.filter((result) => origin === "all" || result.origin === origin);
+      const shown = results.filter(
+        (result) =>
+          origin === "all" || (origin === "maker" ? Boolean(result.maker) : result.origin === origin),
+      );
       grid.replaceChildren(...shown.map(resultCard));
       setText("result-total", shown.length + "종");
     };
@@ -848,10 +955,14 @@
         update();
       }),
     );
+    /* 홈·참여자 카드의 results.html#result-<id> 링크는 해당 카드로 바로 이동합니다. */
     update();
+    if (location.hash.startsWith("#result-")) {
+      document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView();
+    }
     const table = document.querySelector("#result-table tbody");
     if (table) {
-      results.forEach((result) => {
+      [...results].sort((a, b) => a.number.localeCompare(b.number)).forEach((result) => {
         const tr = el("tr");
         const skill = result.skill && skillById(result.skill);
         const first = el("td");
@@ -865,6 +976,7 @@
           first,
           el("td", "", result.format),
           skillCell,
+          el("td", "", result.maker || "—"),
           el("td", "", result.relation || ""),
         );
         table.append(tr);
@@ -957,9 +1069,11 @@
     fill("cohort-skills", cohortSkills.map(skillCard));
     const shared = cohortSkills.filter((s) => s.status === "shared").length;
     const example = cohortSkills.filter((s) => s.status === "example").length;
+    const made = cohortSkills.filter(isMemberSkill).length;
     setText(
       "cohort-skills-count",
-      "공유 " + shared + " · 예제 " + example + " · 후보 " + (cohortSkills.length - shared - example),
+      "참여자 제작 " + made + " · 제공 " + (shared - made) + " · 예제 " + example +
+        " · 후보 " + (cohortSkills.length - shared - example),
     );
     const cohortResults = cohort.results.map(resultById).filter(Boolean);
     fill("cohort-results", cohortResults.map(resultCard));

@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>동네 반찬가게 주문받기 — 만들기 전 계획</title>
+<style>
+  :root{
+    --paper:#F4F3F7; --card:#FFFFFF; --ink:#251F33; --ink2:#635C74;
+    --rule:#DAD5E4; --plan:#5B4B9A; --ok:#2E7D62; --warn:#A85A2B;
+    --sans:-apple-system,"Pretendard","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"JetBrains Mono","D2Coding",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans);
+    font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:860px; margin:0 auto; padding:32px 20px 80px}
+  a{color:var(--plan)}
+  button{font:inherit; color:inherit; cursor:pointer}
+
+  /* 머리말 */
+  h1{margin:0; font-size:28px; letter-spacing:-.02em; font-weight:650}
+  .one{margin:8px 0 0; font-size:18px; color:var(--ink2); max-width:60ch}
+  .facts{margin:20px 0 0; display:flex; flex-wrap:wrap; gap:10px 28px; font-size:14px; color:var(--ink2)}
+  .facts b{color:var(--ink); font-weight:600}
+  .bar{margin:22px 0 0; height:8px; background:#E4E0EC; border-radius:99px; overflow:hidden}
+  .bar i{display:block; height:100%; width:0; background:var(--ok); transition:width .35s}
+  .barlab{margin:8px 0 0; font-size:13.5px; color:var(--ink2)}
+
+  .toolbar{margin:18px 0 0; display:flex; flex-wrap:wrap; gap:8px}
+  .toolbar button{
+    background:var(--card); border:1px solid var(--rule); border-radius:6px; padding:7px 12px; font-size:14px;
+  }
+  .toolbar button:hover{border-color:var(--plan); color:var(--plan)}
+  .toolbar button[aria-pressed="true"]{background:var(--plan); border-color:var(--plan); color:#fff}
+
+  /* 단계 */
+  .lane{margin:34px 0 0; position:relative; padding-left:46px}
+  .lane::before{
+    content:""; position:absolute; left:17px; top:8px; bottom:8px; width:2px;
+    background:linear-gradient(var(--rule), var(--rule)); 
+  }
+  .stage{position:relative; margin:0 0 16px}
+  .num{
+    position:absolute; left:-46px; top:14px; width:36px; height:36px; border-radius:50%;
+    background:var(--card); border:2px solid var(--rule); color:var(--plan);
+    display:grid; place-items:center; font-weight:650; font-size:15px;
+  }
+  .stage.done .num{background:var(--ok); border-color:var(--ok); color:#fff}
+  .card{
+    background:var(--card); border:1px solid var(--rule); border-radius:10px; overflow:hidden;
+  }
+  .head{
+    width:100%; text-align:left; background:none; border:0; padding:16px 18px;
+    display:flex; align-items:flex-start; gap:12px;
+  }
+  .head:hover{background:#FAF9FC}
+  .head h2{margin:0; font-size:17px; font-weight:650; flex:1}
+  .goal{margin:4px 0 0; font-size:14.5px; color:var(--ink2); font-weight:400}
+  .effort{font-size:13px; color:var(--ink2); white-space:nowrap; padding-top:2px}
+  .chev{color:var(--ink2); transition:transform .2s}
+  .stage[open] .chev{transform:rotate(90deg)}
+
+  .chips{display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0}
+  .chip{
+    font-size:12px; border:1px solid var(--rule); border-radius:99px;
+    padding:2px 9px; color:var(--ink2); background:var(--paper);
+  }
+  .chip.req{border-color:#CFC7E6; color:var(--plan)}
+
+  .body{padding:0 18px 18px; border-top:1px solid var(--rule); display:none}
+  .stage[open] .body{display:block}
+  .body h3{
+    margin:16px 0 6px; font-size:13.5px; font-weight:650; color:var(--ink2);
+  }
+  .body ul{margin:0; padding-left:18px}
+  .body li{margin:3px 0}
+  /* .body ul 이 .checks 보다 우선순위가 높아 들여쓰기가 어긋난다. 같은 무게로 맞춘다 */
+  .body ul.checks{list-style:none; padding-left:0; margin:0}
+  .checks li{display:flex; gap:9px; align-items:flex-start; padding:4px 0}
+  .checks input{margin-top:5px; width:16px; height:16px; accent-color:var(--ok); flex:0 0 auto}
+  .checks label{cursor:pointer}
+  .checks input:checked + label{color:var(--ink2); text-decoration:line-through}
+
+  .say{
+    margin:8px 0 0; background:#FAF9FC; border:1px solid var(--rule); border-radius:8px;
+    padding:12px 14px; font-family:var(--mono); font-size:13.5px; line-height:1.65;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .copy{
+    margin:8px 0 0; background:var(--card); border:1px solid var(--rule);
+    border-radius:6px; padding:6px 11px; font-size:13.5px;
+  }
+  .copy:hover{border-color:var(--plan); color:var(--plan)}
+
+  /* 단계 시작 파일 */
+  .brieflab{margin:4px 0 10px; font-size:14px; color:var(--ink2)}
+  .brieflab b{color:var(--ink)}
+  .getbrief{
+    background:var(--plan); border:1px solid var(--plan); color:#fff;
+    border-radius:6px; padding:9px 14px; font-size:14px; font-weight:600;
+  }
+  .getbrief:hover{filter:brightness(1.08)}
+  .peek{margin:10px 0 0}
+  .peek summary{font-size:13.5px; color:var(--ink2); cursor:pointer}
+  .peek summary:hover{color:var(--plan)}
+  .peek .say{max-height:320px; overflow:auto; font-size:13px}
+  .risk{
+    margin:14px 0 0; padding:10px 12px; border-left:3px solid var(--warn);
+    background:#FBF6F1; font-size:14.5px;
+  }
+
+  /* 개발하다가 바꾸고 싶어진 것을 적어 두는 칸 */
+  .memo{
+    width:100%; margin:6px 0 0; padding:10px 12px; font:inherit; font-size:14.5px;
+    border:1px solid var(--rule); border-radius:8px; background:#FCFCFE; color:inherit;
+    resize:vertical; min-height:64px;
+  }
+  .memo:focus{border-color:var(--plan); outline:none}
+  .dot{
+    width:7px; height:7px; border-radius:50%; background:var(--warn);
+    display:inline-block; margin-left:6px; vertical-align:middle;
+  }
+  .stage:not(.hasmemo) .dot{display:none}
+
+  .sheet{
+    margin:26px 0 0; background:var(--card); border:1px solid var(--plan);
+    border-radius:10px; padding:18px; display:none;
+  }
+  .sheet.on{display:block}
+  .sheet h2{margin:0 0 4px; font-size:16px}
+  .sheet p{margin:0 0 12px; font-size:14px; color:var(--ink2)}
+  .sheet pre{
+    margin:0; padding:14px; background:#FAF9FC; border:1px solid var(--rule); border-radius:8px;
+    font-family:var(--mono); font-size:13px; line-height:1.6; white-space:pre-wrap;
+    word-break:break-word; max-height:320px; overflow:auto;
+  }
+  .sheet .row{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 0}
+
+  .revs{margin:26px 0 0; font-size:14px; color:var(--ink2)}
+  .revs h2{margin:0 0 8px; font-size:15px; color:var(--ink); font-weight:650}
+  .revs li{margin:4px 0}
+  .ver{
+    font-size:13px; border:1px solid var(--rule); border-radius:99px; padding:2px 10px;
+    color:var(--plan); vertical-align:middle; margin-left:10px; font-weight:600;
+  }
+
+  .divider{
+    margin:22px 0 26px -46px; display:flex; align-items:center; gap:12px;
+    color:var(--plan); font-size:13.5px; font-weight:600;
+  }
+  .divider::after{content:""; flex:1; height:2px; background:var(--plan); opacity:.35}
+  .later .card{background:#FBFAFD}
+  .later .num{color:var(--ink2)}
+
+  /* 아래 묶음 */
+  .notes{margin:40px 0 0; display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+  .note{background:var(--card); border:1px solid var(--rule); border-radius:10px; padding:16px 18px}
+  .note h2{margin:0 0 8px; font-size:15px; font-weight:650}
+  .note ul{margin:0; padding-left:18px; font-size:14.5px; color:var(--ink2)}
+  .note.no h2{color:var(--warn)}
+  .foot{margin:36px 0 0; font-size:13px; color:var(--ink2); border-top:1px solid var(--rule); padding-top:14px}
+
+  @media (max-width:640px){
+    .wrap{padding:22px 14px 60px}
+    h1{font-size:23px}
+    .lane{padding-left:34px}
+    .lane::before{left:13px}
+    .num{left:-34px; width:28px; height:28px; font-size:13px; top:12px}
+    .divider{margin-left:-34px}
+    .head{padding:14px; flex-wrap:wrap}
+    .effort{order:3; width:100%; padding-top:6px}
+    .body{padding:0 14px 14px}
+  }
+  @media print{
+    .toolbar,.copy{display:none}
+    .body{display:block !important}
+    .card{break-inside:avoid}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+  :focus-visible{outline:2px solid var(--plan); outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 id="ttl"></h1>
+    <p class="one" id="one"></p>
+    <div class="facts" id="facts"></div>
+    <div class="bar"><i id="barfill"></i></div>
+    <p class="barlab" id="barlab"></p>
+    <div class="toolbar">
+      <button id="mvponly" aria-pressed="false">1차 출시까지만 보기</button>
+      <button id="expand">전부 펼치기</button>
+      <button id="collect">바꾸고 싶은 것 모으기 <span id="memocount"></span></button>
+      <button id="dl-spec">요구사항 내려받기 (.md)</button>
+      <button id="reset">체크 지우기</button>
+    </div>
+  </header>
+
+  <section class="sheet" id="sheet" aria-live="polite">
+    <h2>계획 수정 요청서</h2>
+    <p>아래 내용을 복사해서 클로드에게 붙여 넣고 "이거 반영해서 계획 다시 그려 줘"라고 하시면 됩니다.</p>
+    <pre id="sheettext"></pre>
+    <div class="row">
+      <button class="copy" id="sheet-copy">복사</button>
+      <button class="copy" id="sheet-dl">파일로 내려받기 (.md)</button>
+      <button class="copy" id="sheet-close">닫기</button>
+    </div>
+  </section>
+
+  <div class="lane" id="lane"></div>
+
+  <div class="note" style="margin:26px 0 0">
+    <h2>단계와 상관없이 바꾸고 싶은 것 <span class="dot" id="gdot"></span></h2>
+    <textarea class="memo" id="memo-all" placeholder="예: 전체적으로 글자가 작아요 / 색이 너무 화려해요 / 순서를 바꾸고 싶어요"></textarea>
+  </div>
+
+  <div class="revs" id="revs"></div>
+  <div class="notes" id="notes"></div>
+  <p class="foot">이 계획은 만들기 전에 그린 지도입니다. 하다 보면 바뀝니다. 바뀐 이유를 적어 두면 다음 계획이 정확해집니다.</p>
+</div>
+
+<script id="plan-data" type="application/json">{"project": {"title": "동네 반찬가게 주문받기", "slug": "banchan-order", "oneLiner": "전화로 받던 반찬 주문을 링크 하나로 받아, 하루치 주문을 한 장에 모아 보는 웹사이트", "who": "반찬가게 사장님(60대, 카톡은 쓰지만 엑셀은 어려움)", "deadline": "3주 안", "where": "손님에게 카톡으로 링크 공유", "aboutMe": "저는 개발을 해 본 적이 없습니다. 용어를 풀어서 설명해 주시고, 제가 해야 할 일은 한 번에 하나씩 알려 주세요. 화면에서 눈으로 확인할 수 있는 것부터 만들어 주세요."}, "requirements": [{"id": "R1", "title": "손님이 폰으로 주문 넣기", "done": "메뉴를 고르고 이름과 수령 시간을 적으면 주문이 접수된다", "must": true}, {"id": "R2", "title": "사장님이 오늘 주문 한눈에 보기", "done": "오늘 들어온 주문이 수령 시간 순서로 한 화면에 나온다", "must": true}, {"id": "R3", "title": "메뉴를 사장님이 직접 고치기", "done": "품절된 메뉴를 눌러서 감출 수 있다", "must": true}], "notMaking": ["결제 기능은 만들지 않는다. 돈은 가게에서 직접 받는다", "손님 회원가입은 만들지 않는다", "배달은 다루지 않는다. 가게에서 찾아가는 것만"], "stages": [{"title": "메뉴판과 주문 화면 뼈대 만들기", "goal": "손님이 보는 화면이 폰에서 제대로 뜨는지부터 확인한다", "effort": "대화 3~5번", "reqs": ["R1"], "tasks": ["메뉴 목록과 수량 고르는 화면 만들기", "이름과 수령 시간 적는 칸 만들기", "주문 완료 화면 만들기"], "outputs": ["폰으로 열리는 주문 화면 한 벌"], "check": ["내 폰으로 열어서 글자가 잘리지 않는지 본다", "메뉴 3개를 골라 주문을 넣어 본다", "어머니(또는 실제 손님 한 분)에게 보내 혼자 주문해 보게 한다"], "risk": "메뉴 개수가 많으면 폰에서 스크롤이 길어진다. 먼저 10개 안쪽으로 시작한다.", "ask": "반찬가게 주문 화면을 만들어 줘. 손님이 폰으로 열어서 메뉴를 고르고 수량을 정한 뒤, 이름과 찾아갈 시간을 적으면 주문이 끝나는 화면이야. 글자는 크게, 버튼도 크게 해 줘. 60대 손님도 헷갈리지 않게 한 화면에 하나씩만 물어봐 줘.", "briefFile": "01-메뉴판과-주문-화면-뼈대-만들기.md", "brief": "# 1단계 — 메뉴판과 주문 화면 뼈대 만들기\n\n> 이 파일을 클로드에 올린 뒤 \"이 파일대로 시작해 줘\"라고 말하세요.\n> 다른 설명을 덧붙이지 않아도 됩니다.\n\n## 무엇을 만드는 중인가\n\n- 만드는 것: 전화로 받던 반찬 주문을 링크 하나로 받아, 하루치 주문을 한 장에 모아 보는 웹사이트\n- 쓸 사람: 반찬가게 사장님(60대, 카톡은 쓰지만 엑셀은 어려움)\n- 올릴 곳: 손님에게 카톡으로 링크 공유\n\n## 지금까지 된 것\n\n아직 아무것도 만들지 않았습니다. 빈 상태에서 시작합니다.\n\n## 이번 단계에서 할 일\n\n손님이 보는 화면이 폰에서 제대로 뜨는지부터 확인한다\n\n- 메뉴 목록과 수량 고르는 화면 만들기\n- 이름과 수령 시간 적는 칸 만들기\n- 주문 완료 화면 만들기\n\n## 부탁하는 것\n\n반찬가게 주문 화면을 만들어 줘. 손님이 폰으로 열어서 메뉴를 고르고 수량을 정한 뒤, 이름과 찾아갈 시간을 적으면 주문이 끝나는 화면이야. 글자는 크게, 버튼도 크게 해 줘. 60대 손님도 헷갈리지 않게 한 화면에 하나씩만 물어봐 줘.\n\n## 끝나면 이런 것이 있어야 합니다\n\n- 폰으로 열리는 주문 화면 한 벌\n\n## 제가 직접 확인할 것\n\n이 항목들을 제가 눈으로 확인할 수 있게 만들어 주세요.\n\n- [ ] 내 폰으로 열어서 글자가 잘리지 않는지 본다\n- [ ] 메뉴 3개를 골라 주문을 넣어 본다\n- [ ] 어머니(또는 실제 손님 한 분)에게 보내 혼자 주문해 보게 한다\n\n## 지키기로 한 것\n\n이번 프로젝트에서 만들지 않기로 한 것입니다. 먼저 물어보지 않고 넣지 마세요.\n\n- 결제 기능은 만들지 않는다. 돈은 가게에서 직접 받는다\n- 손님 회원가입은 만들지 않는다\n- 배달은 다루지 않는다. 가게에서 찾아가는 것만\n\n주의: 메뉴 개수가 많으면 폰에서 스크롤이 길어진다. 먼저 10개 안쪽으로 시작한다.\n\n## 저에 대해\n\n저는 개발을 해 본 적이 없습니다. 용어를 풀어서 설명해 주시고, 제가 해야 할 일은 한 번에 하나씩 알려 주세요. 화면에서 눈으로 확인할 수 있는 것부터 만들어 주세요.\n\n## 이번 단계의 범위\n\n이 단계를 벗어나는 일은 지금 하지 않습니다. 다음은 2단계 \"주문을 저장할 곳 붙이기\" 입니다.\n\n작업 도중 계획에 없는 것이 필요해 보이면, 먼저 저에게 물어보고 진행해 주세요.\n"}, {"title": "주문을 저장할 곳 붙이기", "goal": "새로고침해도 주문이 사라지지 않게 한다", "effort": "대화 3~6번", "reqs": ["R1", "R2"], "tasks": ["주문을 저장하는 곳 연결하기", "저장된 주문을 다시 불러오기"], "outputs": ["주문이 쌓이는 저장소"], "check": ["주문을 넣고 브라우저를 껐다 켜도 남아 있는지 본다", "두 대의 폰에서 각각 주문을 넣어 둘 다 들어오는지 본다"], "risk": "여기서 가입이 필요한 서비스를 쓰게 된다. 무료 범위를 먼저 확인한다.", "ask": "지금 만든 주문 화면에서 받은 주문을 저장해서, 브라우저를 껐다 켜도 남아 있게 해 줘. 나는 개발을 몰라서 서버를 직접 관리하기 어려우니, 가입만 하면 되는 가장 간단한 방법으로 하고 그 가입 절차도 하나씩 알려 줘.", "briefFile": "02-주문을-저장할-곳-붙이기.md", "brief": "# 2단계 — 주문을 저장할 곳 붙이기\n\n> 이 파일을 클로드에 올린 뒤 \"이 파일대로 시작해 줘\"라고 말하세요.\n> 다른 설명을 덧붙이지 않아도 됩니다.\n\n## 무엇을 만드는 중인가\n\n- 만드는 것: 전화로 받던 반찬 주문을 링크 하나로 받아, 하루치 주문을 한 장에 모아 보는 웹사이트\n- 쓸 사람: 반찬가게 사장님(60대, 카톡은 쓰지만 엑셀은 어려움)\n- 올릴 곳: 손님에게 카톡으로 링크 공유\n\n## 지금까지 된 것\n\n- 1단계 메뉴판과 주문 화면 뼈대 만들기: 손님이 보는 화면이 폰에서 제대로 뜨는지부터 확인한다\n\n이 결과물 위에 이어서 만들어 주세요. 처음부터 다시 만들지 마세요.\n\n## 이번 단계에서 할 일\n\n새로고침해도 주문이 사라지지 않게 한다\n\n- 주문을 저장하는 곳 연결하기\n- 저장된 주문을 다시 불러오기\n\n## 부탁하는 것\n\n지금 만든 주문 화면에서 받은 주문을 저장해서, 브라우저를 껐다 켜도 남아 있게 해 줘. 나는 개발을 몰라서 서버를 직접 관리하기 어려우니, 가입만 하면 되는 가장 간단한 방법으로 하고 그 가입 절차도 하나씩 알려 줘.\n\n## 끝나면 이런 것이 있어야 합니다\n\n- 주문이 쌓이는 저장소\n\n## 제가 직접 확인할 것\n\n이 항목들을 제가 눈으로 확인할 수 있게 만들어 주세요.\n\n- [ ] 주문을 넣고 브라우저를 껐다 켜도 남아 있는지 본다\n- [ ] 두 대의 폰에서 각각 주문을 넣어 둘 다 들어오는지 본다\n\n## 지키기로 한 것\n\n이번 프로젝트에서 만들지 않기로 한 것입니다. 먼저 물어보지 않고 넣지 마세요.\n\n- 결제 기능은 만들지 않는다. 돈은 가게에서 직접 받는다\n- 손님 회원가입은 만들지 않는다\n- 배달은 다루지 않는다. 가게에서 찾아가는 것만\n\n주의: 여기서 가입이 필요한 서비스를 쓰게 된다. 무료 범위를 먼저 확인한다.\n\n## 저에 대해\n\n저는 개발을 해 본 적이 없습니다. 용어를 풀어서 설명해 주시고, 제가 해야 할 일은 한 번에 하나씩 알려 주세요. 화면에서 눈으로 확인할 수 있는 것부터 만들어 주세요.\n\n## 이번 단계의 범위\n\n이 단계를 벗어나는 일은 지금 하지 않습니다. 다음은 3단계 \"사장님 화면 만들기\" 입니다.\n\n작업 도중 계획에 없는 것이 필요해 보이면, 먼저 저에게 물어보고 진행해 주세요.\n"}, {"title": "사장님 화면 만들기", "goal": "오늘 주문을 수령 시간 순서로 한 장에 본다", "effort": "대화 3~5번", "reqs": ["R2", "R3"], "tasks": ["오늘 주문 목록 화면", "품절 표시 켜고 끄기", "주문 완료 표시"], "outputs": ["사장님만 여는 관리 화면"], "check": ["주문 5건을 넣고 시간 순서대로 나오는지 본다", "품절을 눌렀을 때 손님 화면에서 그 메뉴가 사라지는지 본다", "사장님께 직접 5분만 써 보시게 한다"], "ask": "사장님이 보는 화면을 만들어 줘. 오늘 들어온 주문이 찾아갈 시간 순서로 나오고, 다 준비한 주문은 눌러서 지울 수 있어야 해. 그리고 품절된 메뉴를 눌러서 손님 화면에서 안 보이게 하는 기능도 넣어 줘.", "briefFile": "03-사장님-화면-만들기.md", "brief": "# 3단계 — 사장님 화면 만들기\n\n> 이 파일을 클로드에 올린 뒤 \"이 파일대로 시작해 줘\"라고 말하세요.\n> 다른 설명을 덧붙이지 않아도 됩니다.\n\n## 무엇을 만드는 중인가\n\n- 만드는 것: 전화로 받던 반찬 주문을 링크 하나로 받아, 하루치 주문을 한 장에 모아 보는 웹사이트\n- 쓸 사람: 반찬가게 사장님(60대, 카톡은 쓰지만 엑셀은 어려움)\n- 올릴 곳: 손님에게 카톡으로 링크 공유\n\n## 지금까지 된 것\n\n- 1단계 메뉴판과 주문 화면 뼈대 만들기: 손님이 보는 화면이 폰에서 제대로 뜨는지부터 확인한다\n- 2단계 주문을 저장할 곳 붙이기: 새로고침해도 주문이 사라지지 않게 한다\n\n이 결과물 위에 이어서 만들어 주세요. 처음부터 다시 만들지 마세요.\n\n## 이번 단계에서 할 일\n\n오늘 주문을 수령 시간 순서로 한 장에 본다\n\n- 오늘 주문 목록 화면\n- 품절 표시 켜고 끄기\n- 주문 완료 표시\n\n## 부탁하는 것\n\n사장님이 보는 화면을 만들어 줘. 오늘 들어온 주문이 찾아갈 시간 순서로 나오고, 다 준비한 주문은 눌러서 지울 수 있어야 해. 그리고 품절된 메뉴를 눌러서 손님 화면에서 안 보이게 하는 기능도 넣어 줘.\n\n## 끝나면 이런 것이 있어야 합니다\n\n- 사장님만 여는 관리 화면\n\n## 제가 직접 확인할 것\n\n이 항목들을 제가 눈으로 확인할 수 있게 만들어 주세요.\n\n- [ ] 주문 5건을 넣고 시간 순서대로 나오는지 본다\n- [ ] 품절을 눌렀을 때 손님 화면에서 그 메뉴가 사라지는지 본다\n- [ ] 사장님께 직접 5분만 써 보시게 한다\n\n## 지키기로 한 것\n\n이번 프로젝트에서 만들지 않기로 한 것입니다. 먼저 물어보지 않고 넣지 마세요.\n\n- 결제 기능은 만들지 않는다. 돈은 가게에서 직접 받는다\n- 손님 회원가입은 만들지 않는다\n- 배달은 다루지 않는다. 가게에서 찾아가는 것만\n\n## 저에 대해\n\n저는 개발을 해 본 적이 없습니다. 용어를 풀어서 설명해 주시고, 제가 해야 할 일은 한 번에 하나씩 알려 주세요. 화면에서 눈으로 확인할 수 있는 것부터 만들어 주세요.\n\n## 이번 단계의 범위\n\n이 단계를 벗어나는 일은 지금 하지 않습니다. 다음은 4단계 \"실제로 하루 써 보기\" 입니다.\n\n작업 도중 계획에 없는 것이 필요해 보이면, 먼저 저에게 물어보고 진행해 주세요.\n"}, {"title": "실제로 하루 써 보기", "goal": "진짜 손님 주문을 받아 보고 고친다", "effort": "대화 2~4번 + 하루 영업", "reqs": ["R1", "R2", "R3"], "tasks": ["링크를 단골 몇 분께만 먼저 보내기", "불편했던 점 받아 적기", "가장 많이 걸린 것 한 가지만 고치기"], "outputs": ["실제 주문 기록", "고칠 것 목록"], "check": ["주문이 한 건이라도 전화 없이 끝까지 들어왔다", "사장님이 혼자 화면을 열어 확인하셨다"], "ask": "어제 하루 써 보니 이런 점이 불편했어: (여기에 적기). 이 중에서 손님이 주문을 끝내지 못하게 만드는 문제부터 먼저 고쳐 줘.", "briefFile": "04-실제로-하루-써-보기.md", "brief": "# 4단계 — 실제로 하루 써 보기\n\n> 이 파일을 클로드에 올린 뒤 \"이 파일대로 시작해 줘\"라고 말하세요.\n> 다른 설명을 덧붙이지 않아도 됩니다.\n\n## 무엇을 만드는 중인가\n\n- 만드는 것: 전화로 받던 반찬 주문을 링크 하나로 받아, 하루치 주문을 한 장에 모아 보는 웹사이트\n- 쓸 사람: 반찬가게 사장님(60대, 카톡은 쓰지만 엑셀은 어려움)\n- 올릴 곳: 손님에게 카톡으로 링크 공유\n\n## 지금까지 된 것\n\n- 1단계 메뉴판과 주문 화면 뼈대 만들기: 손님이 보는 화면이 폰에서 제대로 뜨는지부터 확인한다\n- 2단계 주문을 저장할 곳 붙이기: 새로고침해도 주문이 사라지지 않게 한다\n- 3단계 사장님 화면 만들기: 오늘 주문을 수령 시간 순서로 한 장에 본다\n\n이 결과물 위에 이어서 만들어 주세요. 처음부터 다시 만들지 마세요.\n\n## 이번 단계에서 할 일\n\n진짜 손님 주문을 받아 보고 고친다\n\n- 링크를 단골 몇 분께만 먼저 보내기\n- 불편했던 점 받아 적기\n- 가장 많이 걸린 것 한 가지만 고치기\n\n## 부탁하는 것\n\n어제 하루 써 보니 이런 점이 불편했어: (여기에 적기). 이 중에서 손님이 주문을 끝내지 못하게 만드는 문제부터 먼저 고쳐 줘.\n\n## 끝나면 이런 것이 있어야 합니다\n\n- 실제 주문 기록\n- 고칠 것 목록\n\n## 제가 직접 확인할 것\n\n이 항목들을 제가 눈으로 확인할 수 있게 만들어 주세요.\n\n- [ ] 주문이 한 건이라도 전화 없이 끝까지 들어왔다\n- [ ] 사장님이 혼자 화면을 열어 확인하셨다\n\n## 지키기로 한 것\n\n이번 프로젝트에서 만들지 않기로 한 것입니다. 먼저 물어보지 않고 넣지 마세요.\n\n- 결제 기능은 만들지 않는다. 돈은 가게에서 직접 받는다\n- 손님 회원가입은 만들지 않는다\n- 배달은 다루지 않는다. 가게에서 찾아가는 것만\n\n## 저에 대해\n\n저는 개발을 해 본 적이 없습니다. 용어를 풀어서 설명해 주시고, 제가 해야 할 일은 한 번에 하나씩 알려 주세요. 화면에서 눈으로 확인할 수 있는 것부터 만들어 주세요.\n\n## 이번 단계의 범위\n\n이 단계를 벗어나는 일은 지금 하지 않습니다. 다음은 5단계 \"사진과 단골 재주문\" 입니다.\n\n작업 도중 계획에 없는 것이 필요해 보이면, 먼저 저에게 물어보고 진행해 주세요.\n"}, {"title": "사진과 단골 재주문", "goal": "있으면 좋은 것들", "phase": "later", "effort": "미정", "tasks": ["메뉴 사진 넣기", "지난 주문 그대로 다시 주문하기"], "outputs": [], "check": ["1차 출시 뒤 실제 요청이 있었을 때만 시작한다"], "ask": "1차 출시를 하고 손님 반응을 본 뒤에 다시 이야기하자.", "briefFile": "05-사진과-단골-재주문.md", "brief": "# 5단계 — 사진과 단골 재주문\n\n> 이 파일을 클로드에 올린 뒤 \"이 파일대로 시작해 줘\"라고 말하세요.\n> 다른 설명을 덧붙이지 않아도 됩니다.\n\n## 무엇을 만드는 중인가\n\n- 만드는 것: 전화로 받던 반찬 주문을 링크 하나로 받아, 하루치 주문을 한 장에 모아 보는 웹사이트\n- 쓸 사람: 반찬가게 사장님(60대, 카톡은 쓰지만 엑셀은 어려움)\n- 올릴 곳: 손님에게 카톡으로 링크 공유\n\n## 지금까지 된 것\n\n- 1단계 메뉴판과 주문 화면 뼈대 만들기: 손님이 보는 화면이 폰에서 제대로 뜨는지부터 확인한다\n- 2단계 주문을 저장할 곳 붙이기: 새로고침해도 주문이 사라지지 않게 한다\n- 3단계 사장님 화면 만들기: 오늘 주문을 수령 시간 순서로 한 장에 본다\n- 4단계 실제로 하루 써 보기: 진짜 손님 주문을 받아 보고 고친다\n\n이 결과물 위에 이어서 만들어 주세요. 처음부터 다시 만들지 마세요.\n\n## 이번 단계에서 할 일\n\n있으면 좋은 것들\n\n- 메뉴 사진 넣기\n- 지난 주문 그대로 다시 주문하기\n\n## 부탁하는 것\n\n1차 출시를 하고 손님 반응을 본 뒤에 다시 이야기하자.\n\n## 제가 직접 확인할 것\n\n이 항목들을 제가 눈으로 확인할 수 있게 만들어 주세요.\n\n- [ ] 1차 출시 뒤 실제 요청이 있었을 때만 시작한다\n\n## 지키기로 한 것\n\n이번 프로젝트에서 만들지 않기로 한 것입니다. 먼저 물어보지 않고 넣지 마세요.\n\n- 결제 기능은 만들지 않는다. 돈은 가게에서 직접 받는다\n- 손님 회원가입은 만들지 않는다\n- 배달은 다루지 않는다. 가게에서 찾아가는 것만\n\n## 저에 대해\n\n저는 개발을 해 본 적이 없습니다. 용어를 풀어서 설명해 주시고, 제가 해야 할 일은 한 번에 하나씩 알려 주세요. 화면에서 눈으로 확인할 수 있는 것부터 만들어 주세요.\n\n## 이번 단계의 범위\n\n이 단계가 계획의 마지막입니다. 여기까지 끝나면 한 번 멈추고 실제로 써 봅니다.\n\n작업 도중 계획에 없는 것이 필요해 보이면, 먼저 저에게 물어보고 진행해 주세요.\n"}], "openQuestions": ["주문 마감 시간을 몇 시로 할지 사장님과 정해야 함", "손님 전화번호를 받을지 말지 (받으면 개인정보 관리가 필요해짐)"], "risks": [{"what": "사장님이 관리 화면을 어려워할 수 있음", "plan": "3단계에서 직접 5분 써 보시게 하고, 어려워하면 화면을 더 줄인다"}, {"what": "점심시간에 주문이 몰리면 확인을 놓칠 수 있음", "plan": "1차에서는 소리 알림 없이 시작하고, 실제로 놓치면 그때 붙인다"}]}</script>
+<script id="spec-md" type="text/plain">IyDsmpTqtazsgqztla0g7KCV66asCgo8IS0tIOu5iOy5uChfX18p66eMIOyxhOyasOuptCDrkKnri4jri6QuIOuqqOultOqyoOuKlCDsubjsnYAg67mE7JuMIOuRkOyEuOyalC4g67mE7JuMIOuRlCDsubjsnYAg7YG066Gc65Oc6rCAIOyniOusuOycvOuhnCDssYTsm4wg7KSN64uI64ukLiAtLT4KCiMjIDEuIO2VnCDspITroZwg66eQ7ZWY66m0CgpfX18KPCEtLSDsmIg6IOyYgeyImOymneydhCDssI3snLzrqbQg7Lmc6rWs65Ok64G866asIOuCmOuIoCDrgrwg6riI7JWh7J2EIOqzhOyCsO2VtCDso7zripQg7Ju57IKs7J207Yq4IC0tPgoKIyMgMi4g7JmcIOunjOuTnOuCmOyalAoKLSDsp4DquIjsnYAg7J2066CH6rKMIO2VmOqzoCDsnojsirXri4jri6Q6IF9fXwotIOq3uOuemOyEnCDsnbTqsowg67aI7Y647ZWp64uI64ukOiBfX18KLSDsnbTqsowg7J6I7Jy866m0IOydtOugh+qyjCDrsJTrgJ3ri4jri6Q6IF9fXwoKIyMgMy4g64iE6rCAIOyTsOuCmOyalAoKLSDso7zroZwg7JO4IOyCrOuejDogX19fCjwhLS0gIuuqqOuRkCLrnbzqs6Ag7JOw7KeAIOuniOyEuOyalC4g7ZWcIOyCrOuejOydhCDqtazssrTsoIHsnLzroZwg65ag7Jis66CkIOyggeycvOuptCDrp4zrk6TquLDqsIAg7Zuo7JSsIOyJrOybjOynkeuLiOuLpCAtLT4KLSDqt7gg7IKs656M7J20IOydteyIme2VnCDsoJXrj4Q6IF9fXwo8IS0tIOyYiDog7Lm07Yah7J2AIOyTsOyngOunjCDsl5HshYDsnYAg7Ja066Ck7JuM7ZWoIC0tPgotIOyjvOuhnCDsk7DripQg6riw6riwOiBfX18KPCEtLSDsmIg6IOyVhOydtO2PsCAvIO2ajOyCrCDrhbjtirjrtoEgLS0+CgojIyA0LiDsk7DripQg7Iic7IScCgrsspjsnYwg7Je07Ja07IScIOybkO2VmOuKlCDqsbgg7Ja76riw6rmM7KeALCDtmZTrqbTsl5DshJwg7J287Ja064KY64qUIOydvOydhCDsiJzshJzrjIDroZwg7KCB7Ja0IOyjvOyEuOyalC4KCjEuIF9fXwoyLiBfX18KMy4gX19fCgojIyA1LiDqvK0g7J6I7Ja07JW8IO2VmOuKlCDqsoMKCjwhLS0g7J206rKMIOyXhuycvOuptCDslYgg7JOw64qUIOq4sOuKpeunjCDsoIHsirXri4jri6QuIOuztO2GtSAz6rCc7JeQ7IScIDXqsJzrqbQg7Lap67aE7ZWp64uI64ukIC0tPgoKIyMjIOyalOq1rOyCrO2VrSAxCgotIOustOyXh+ydhDogX19fCi0g7J206rKMIOuQmOuptCDrgZ06IF9fXwo8IS0tIOuIiOycvOuhnCDtmZXsnbjtlaAg7IiYIOyeiOqyjCDsoIHslrQg7KO87IS47JqULiDsmIg6IOyCrOynhOydhCDsmKzrpqzrqbQgMTDstIgg7JWI7JeQIO2SiOuqqSDrqqnroZ3snbQg7ZmU66m07JeQIOucrOuLpCAtLT4KLSDsl4bsnLzrqbQ6IF9fXwoKIyMjIOyalOq1rOyCrO2VrSAyCgotIOustOyXh+ydhDogX19fCi0g7J206rKMIOuQmOuptCDrgZ06IF9fXwotIOyXhuycvOuptDogX19fCgojIyMg7JqU6rWs7IKs7ZWtIDMKCi0g66y07JeH7J2EOiBfX18KLSDsnbTqsowg65CY66m0IOuBnTogX19fCi0g7JeG7Jy866m0OiBfX18KCiMjIDYuIOyeiOycvOuptCDsoovsnYAg6rKDCgo8IS0tIOyngOq4iOydgCDslYgg66eM65Ok7KeA66eMIOuCmOykkeyXkCDtlZjqs6Ag7Iu27J2AIOqygyAtLT4KCi0gX19fCgojIyA3LiDslYgg66eM65OkIOqygwoKPCEtLSDqsIDsnqUg7KSR7JqU7ZWcIOy5uOyeheuLiOuLpC4g7Jes6riw66W8IOu5hOybjCDrkZDrqbQg66eM65Ok64uk6rCAIOuBneyXhuydtCDripjslrTrgqnri4jri6QgLS0+CgotIF9fXwo8IS0tIOyYiDog7ZqM7JuQ6rCA7J6F6rO8IOuhnOq3uOyduOydgCDrp4zrk6Tsp4Ag7JWK64qU64ukLiDrp4Htgazrpbwg7JWE64qUIOyCrOuejOunjCDsk7Tri6QgLS0+CgojIyA4LiDsoJXrs7QKCi0g66y07JeH7J2EIOyggOyepe2VmOuCmOyalDogX19fCi0g64Ko7J20IOuztOuptCDqs6TrnoDtlZwg7KCV67O06rCAIOyeiOuCmOyalDogX19fCi0g7JOw642YIOyekOujjOqwgCDsnojrgpjsmpQ6IF9fXwo8IS0tIOyYiDog7JeR7IWAIO2MjOydvCDtlZwg6rCcLCDqtazquIAg7Iuc7Yq4LCDsl4bsnYwgLS0+CgojIyA5LiDqsonrqqjsirUKCi0g7LC46rOg7ZWY6rOgIOyLtuydgCDshJzruYTsiqQ6IF9fXwotIOu2hOychOq4sDogX19fCjwhLS0g7JiIOiDsooXsnbQg64W47Yq47LKY65+8IOyhsOyaqe2VmOqyjCAvIO2ajOyCrCDrs7Tqs6DshJzsspjrn7wg67CY65Ov7ZWY6rKMIC0tPgoKIyMgMTAuIOyCrOyglQoKLSDslrjsoJzquYzsp4A6IF9fXwotIOuIhOqwgCDrp4zrk5zrgpjsmpQ6IF9fXwotIOyWtOuUlOyXkCDsmKzrprQg6rG06rCA7JqUOiBfX18KPCEtLSDsmIg6IOuCmOunjCDsk7gg6rGw6528IOuCtCDsu7Ttk6jthLDsl5DshJzrp4wgLyDsuZzqtazrk6Tsl5Dqsowg66eB7YGsIOqzteycoCAvIO2ajOyCrCDsgqzrnozrk6Trp4wgLS0+Ci0g64+I7J20IOuTnOuKlCDqsoPsnYQg7I2o64+EIOuQmOuCmOyalDogX19fCgojIyAxMS4g7J206rKMIOuQmOuptCDrgZ0KCjwhLS0g66y07JeH7J2EIOuztOuptCAi64ukIOuQkOuLpCLqs6Ag7ZWgIOyImCDsnojrgpjsmpQuIO2VnCDrrLjsnqXsnLzroZwgLS0+CgpfX18KCiMjIDEyLiDslYTsp4Eg66qo66W064qUIOqygwoKPCEtLSDqsrDsoJXtlZjsp4Ag66q77ZWcIOqygywg66y87Ja067O8IOqzs+ydtCDtlYTsmpTtlZwg6rKDIC0tPgoKLSBfX18K</script>
+<script>
+(function(){
+  const D = JSON.parse(document.getElementById('plan-data').textContent);
+  const specRaw = document.getElementById('spec-md').textContent.trim();
+  const SPEC = specRaw ? new TextDecoder().decode(
+    Uint8Array.from(atob(specRaw), c => c.charCodeAt(0))) : '';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  const stages = D.stages || [];
+  const reqs = D.requirements || [];
+  const reqTitle = id => (reqs.find(r => r.id === id) || {}).title || id;
+  const KEY = 'vibe-plan:' + (D.project && D.project.slug ? D.project.slug : 'plan');
+
+  // 저장은 되면 좋고 안 되면 그만. 미리보기 창에서는 막혀 있을 수 있다.
+  const store = {
+    read(){ try { return JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) { return {}; } },
+    write(v){ try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+  };
+  let checked = store.read();
+
+  // 바꾸고 싶은 것을 적어 두는 메모. 체크와 따로 저장한다.
+  const memoStore = {
+    read(){ try { return JSON.parse(localStorage.getItem(KEY + ':memo') || '{}'); } catch (e) { return {}; } },
+    write(v){ try { localStorage.setItem(KEY + ':memo', JSON.stringify(v)); } catch (e) {} }
+  };
+  let memos = memoStore.read();
+
+  $('ttl').textContent = (D.project && D.project.title) || '만들 것';
+  if (D.version && D.version > 1) {
+    const b = document.createElement('span');
+    b.className = 'ver'; b.textContent = '판 ' + D.version;
+    $('ttl').appendChild(b);
+  }
+  $('one').textContent = (D.project && D.project.oneLiner) || '';
+
+  const mvp = stages.filter(s => s.phase !== 'later');
+  const facts = [];
+  if (D.project && D.project.who) facts.push(['쓸 사람', D.project.who]);
+  facts.push(['1차 출시까지', mvp.length + '단계']);
+  if (stages.length > mvp.length) facts.push(['그 뒤', (stages.length - mvp.length) + '단계']);
+  if (D.project && D.project.deadline) facts.push(['기한', D.project.deadline]);
+  if (D.project && D.project.where) facts.push(['올릴 곳', D.project.where]);
+  $('facts').innerHTML = facts.map(f => '<div>' + esc(f[0]) + ' <b>' + esc(f[1]) + '</b></div>').join('');
+
+  function checkId(si, ci){ return 's' + si + 'c' + ci; }
+
+  function stageHTML(s, si){
+    const checks = s.check || [];
+    const chips = []
+      .concat((s.reqs || []).map(r => '<span class="chip req">' + esc(reqTitle(r)) + '</span>'))
+      .concat(s.phase === 'later' ? ['<span class="chip">1차 이후</span>'] : []);
+    const list = (arr, cls) => (arr && arr.length)
+      ? '<ul class="' + (cls || '') + '">' + arr.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul>' : '';
+
+    return '' +
+    '<div class="stage' + (s.phase === 'later' ? ' later' : '') + '" data-i="' + si + '">' +
+      '<div class="num">' + (si + 1) + '</div>' +
+      '<div class="card">' +
+        '<button class="head" aria-expanded="false">' +
+          '<span class="chev">▶</span>' +
+          '<span style="flex:1">' +
+            '<h2>' + esc(s.title || '단계') + '<span class="dot" title="바꾸고 싶은 것이 적혀 있습니다"></span></h2>' +
+            (s.goal ? '<span class="goal">' + esc(s.goal) + '</span>' : '') +
+            (chips.length ? '<span class="chips">' + chips.join('') + '</span>' : '') +
+          '</span>' +
+          (s.effort ? '<span class="effort">' + esc(s.effort) + '</span>' : '') +
+        '</button>' +
+        '<div class="body">' +
+          (s.tasks && s.tasks.length ? '<h3>여기서 하는 일</h3>' + list(s.tasks) : '') +
+          (s.outputs && s.outputs.length ? '<h3>끝나면 생기는 것</h3>' + list(s.outputs) : '') +
+          (checks.length ? '<h3>내가 직접 확인할 것</h3><ul class="checks">' + checks.map((c, ci) => {
+            const id = checkId(si, ci);
+            return '<li><input type="checkbox" id="' + id + '"' + (checked[id] ? ' checked' : '') +
+                   '><label for="' + id + '">' + esc(c) + '</label></li>';
+          }).join('') + '</ul>' : '') +
+          (s.brief ? '<h3>이 단계 시작 파일</h3>' +
+                     '<p class="brieflab">아래 파일을 내려받아 클로드에 <b>올린 뒤</b> "이 파일대로 시작해 줘"라고 하세요. ' +
+                     '붙여 넣을 필요 없이 파일 하나만 올리면 됩니다.</p>' +
+                     '<button class="getbrief" data-i="' + si + '">' + esc(s.briefFile || '시작 파일') + ' 내려받기</button>' +
+                     '<details class="peek"><summary>파일 안에 뭐가 들었는지 보기</summary>' +
+                     '<pre class="say">' + esc(s.brief) + '</pre></details>' : '') +
+          (s.risk ? '<div class="risk"><b>주의</b> ' + esc(s.risk) + '</div>' : '') +
+          '<h3>이 단계에서 바꾸고 싶은 것</h3>' +
+          '<textarea class="memo" data-key="s' + si + '" placeholder="만들다가 생각이 바뀌면 여기에 적어 두세요. 나중에 한 번에 모아 드립니다">' +
+            esc(memos['s' + si] || '') + '</textarea>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  let html = '';
+  stages.forEach((s, i) => {
+    if (s.phase === 'later' && (i === 0 || stages[i-1].phase !== 'later')) {
+      html += '<div class="divider">여기까지가 1차 출시</div>';
+    }
+    html += stageHTML(s, i);
+  });
+  $('lane').innerHTML = html || '<p>단계가 없습니다.</p>';
+
+  const notes = [];
+  if (D.notMaking && D.notMaking.length)
+    notes.push(['no', '이번에는 만들지 않는 것', D.notMaking]);
+  if (D.openQuestions && D.openQuestions.length)
+    notes.push(['', '아직 정하지 못한 것', D.openQuestions]);
+  if (D.risks && D.risks.length)
+    notes.push(['', '어긋날 수 있는 것', D.risks.map(r =>
+      typeof r === 'string' ? r : (r.what + (r.plan ? ' → ' + r.plan : '')))]);
+  $('notes').innerHTML = notes.map(n =>
+    '<div class="note ' + n[0] + '"><h2>' + esc(n[1]) + '</h2><ul>' +
+    n[2].map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>').join('');
+
+  // 지난 판에서 무엇이 바뀌었는지
+  if (D.revisions && D.revisions.length) {
+    $('revs').innerHTML = '<h2>바뀐 내역</h2>' + D.revisions.slice().reverse().map(r =>
+      '<div style="margin:0 0 10px"><b>판 ' + esc(r.n) + '</b>' +
+      (r.date ? ' · ' + esc(r.date) : '') + (r.why ? ' · ' + esc(r.why) : '') +
+      ((r.changes && r.changes.length)
+        ? '<ul>' + r.changes.map(c => '<li>' + esc(c) + '</li>').join('') + '</ul>' : '') +
+      '</div>').join('');
+  }
+
+  // ── 바꾸고 싶은 것 모으기 ────────────────────────────
+  const memoAll = $('memo-all');
+  memoAll.value = memos.all || '';
+
+  function refreshMemos(){
+    document.querySelectorAll('.stage').forEach(el => {
+      const box = el.querySelector('.memo');
+      el.classList.toggle('hasmemo', !!(box && box.value.trim()));
+    });
+    $('gdot').style.display = (memos.all || '').trim() ? 'inline-block' : 'none';
+    const n = Object.values(memos).filter(v => (v || '').trim()).length;
+    $('memocount').textContent = n ? '(' + n + ')' : '';
+  }
+
+  function buildSheet(){
+    const L = [];
+    L.push('# 계획 수정 요청 — ' + ((D.project && D.project.title) || '만들 것'));
+    L.push('');
+    L.push('현재 판: ' + (D.version || 1) + ' / 적은 날: ' + new Date().toISOString().slice(0, 10));
+    L.push('');
+    stages.forEach((s, i) => {
+      const v = (memos['s' + i] || '').trim();
+      if (v) {
+        L.push('## ' + (i + 1) + '단계 · ' + (s.title || ''));
+        v.split('\n').forEach(line => L.push(line.trim() ? '- ' + line.trim() : ''));
+        L.push('');
+      }
+    });
+    const all = (memos.all || '').trim();
+    if (all) {
+      L.push('## 전체');
+      all.split('\n').forEach(line => L.push(line.trim() ? '- ' + line.trim() : ''));
+      L.push('');
+    }
+    if (L.length <= 4) L.push('(아직 적은 내용이 없습니다)');
+    L.push('---');
+    L.push('이 내용을 클로드에 붙여 넣고 "이거 반영해서 계획 다시 그려 줘"라고 하면 됩니다.');
+    return L.join('\n');
+  }
+
+  function saveMemo(key, value){
+    if (value.trim()) memos[key] = value; else delete memos[key];
+    memoStore.write(memos); refreshMemos();
+    if ($('sheet').classList.contains('on')) $('sheettext').textContent = buildSheet();
+  }
+
+  memoAll.addEventListener('input', e => saveMemo('all', e.target.value));
+  $('lane').addEventListener('input', e => {
+    if (e.target.matches('.memo')) saveMemo(e.target.dataset.key, e.target.value);
+  });
+
+  $('collect').onclick = () => {
+    $('sheettext').textContent = buildSheet();
+    $('sheet').classList.add('on');
+    $('sheet').scrollIntoView({behavior: 'smooth', block: 'start'});
+  };
+  $('sheet-close').onclick = () => $('sheet').classList.remove('on');
+  $('sheet-copy').onclick = e => copyText(buildSheet(), e.currentTarget);
+  $('sheet-dl').onclick = () => {
+    const name = ((D.project && D.project.slug) || 'plan') + '-수정요청.md';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([buildSheet()], {type: 'text/markdown;charset=utf-8'}));
+    a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+
+  function copyText(text, btn){
+    const label = btn.textContent;
+    const done = () => { btn.textContent = '복사했습니다'; setTimeout(() => btn.textContent = label, 1600); };
+    if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, fallback); }
+    else fallback();
+    function fallback(){
+      const t = document.createElement('textarea');
+      t.value = text; document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); done(); } catch (err) { btn.textContent = '복사 실패'; }
+      t.remove();
+    }
+  }
+
+  function progress(){
+    const boxes = [...document.querySelectorAll('.checks input')];
+    const done = boxes.filter(b => b.checked).length;
+    const pct = boxes.length ? done / boxes.length * 100 : 0;
+    $('barfill').style.width = pct + '%';
+    $('barlab').textContent = boxes.length
+      ? '확인 항목 ' + done + ' / ' + boxes.length + ' 완료'
+      : '확인 항목이 아직 없습니다';
+    document.querySelectorAll('.stage').forEach(el => {
+      const inputs = [...el.querySelectorAll('.checks input')];
+      el.classList.toggle('done', inputs.length > 0 && inputs.every(b => b.checked));
+    });
+  }
+
+  function saveFile(name, text, mime){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], {type: mime + ';charset=utf-8'}));
+    a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+
+  $('lane').addEventListener('click', e => {
+    const head = e.target.closest('.head');
+    if (head) {
+      const st = head.closest('.stage');
+      const open = st.hasAttribute('open');
+      st.toggleAttribute('open', !open);
+      head.setAttribute('aria-expanded', String(!open));
+      return;
+    }
+    const get = e.target.closest('.getbrief');
+    if (get && get.dataset.i !== undefined) {
+      const s = stages[+get.dataset.i];
+      saveFile(s.briefFile || 'stage.md', s.brief || '', 'text/markdown');
+      const was = get.textContent;
+      get.textContent = '내려받았습니다';
+      setTimeout(() => get.textContent = was, 1800);
+    }
+  });
+
+  $('lane').addEventListener('change', e => {
+    if (e.target.matches('.checks input')) {
+      checked[e.target.id] = e.target.checked;
+      store.write(checked); progress();
+    }
+  });
+
+  $('mvponly').onclick = e => {
+    const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+    e.currentTarget.setAttribute('aria-pressed', String(on));
+    document.querySelectorAll('.stage.later, .divider').forEach(el => el.style.display = on ? 'none' : '');
+  };
+  $('expand').onclick = e => {
+    const anyClosed = [...document.querySelectorAll('.stage')].some(s => !s.hasAttribute('open'));
+    document.querySelectorAll('.stage').forEach(s => {
+      s.toggleAttribute('open', anyClosed);
+      s.querySelector('.head').setAttribute('aria-expanded', String(anyClosed));
+    });
+    e.currentTarget.textContent = anyClosed ? '전부 접기' : '전부 펼치기';
+  };
+  $('reset').onclick = () => {
+    checked = {}; store.write(checked);
+    document.querySelectorAll('.checks input').forEach(b => b.checked = false);
+    progress();
+  };
+  if (SPEC) {
+    $('dl-spec').onclick = () => {
+      const name = ((D.project && D.project.slug) || 'project') + '-requirements.md';
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([SPEC], {type: 'text/markdown;charset=utf-8'}));
+      a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    };
+  } else {
+    $('dl-spec').style.display = 'none';
+  }
+
+  // 첫 단계는 펼쳐 둔다. 열자마자 무엇부터 하면 되는지 보이는 편이 낫다.
+  const first = document.querySelector('.stage');
+  if (first) { first.setAttribute('open', ''); first.querySelector('.head').setAttribute('aria-expanded', 'true'); }
+  progress();
+  refreshMemos();
+})();
+</script>
+</body>
+</html>

@@ -1,6 +1,8 @@
 /*
  * 기수별 활동 데이터. 기수 소개(cohorts.html)와 기수 상세(cohort.html?id=…)에서 사용합니다.
  * 회의록이 추가되면 weeks 항목의 status를 "done"으로 바꾸고 summary·link를 채웁니다.
+ * members[].skills — 그 참여자가 만든 공유 스킬 id 목록. 아직 제작 후보면 skill 하나만 적습니다.
+ * members[].results — 스킬과 별개로 참여자의 업무에서 나온 결과물 id 목록(선택).
  * 확정되지 않은 일정은 적지 않습니다. 1주차 회의록의 결정 칸이 비어 있는 항목은 미정으로 둡니다.
  */
 window.cohorts = [
@@ -29,6 +31,7 @@ window.cohorts = [
         field: "스타트업",
         plan: "견적서·보고서·제안서 등 스타트업에 필수인 문서 스킬 제작과 배포",
         skill: "business-documents",
+        results: ["lecture-report"],
       },
       {
         name: "조승호",
@@ -52,13 +55,13 @@ window.cohorts = [
         name: "김민영",
         field: "광고·마케팅",
         plan: "학생 동아리용 사례 조사와 프로젝트 LLM 위키, 갈무리 도구",
-        skill: "marketing-research",
+        skills: ["case-to-project"],
       },
       {
         name: "문혁재",
         field: "디자인·개발",
-        plan: "디자인이 익숙하지 않은 사람을 위한 디자인 도구",
-        skill: "design-support",
+        plan: "디자인·개발이 익숙하지 않은 사람을 위한 도구. 바이브 코딩을 시작하기 전 계획을 세우는 스킬로 공개했습니다.",
+        skills: ["vibe-spec"],
       },
       {
         name: "이길",
@@ -68,15 +71,15 @@ window.cohorts = [
       },
       {
         name: "한민철",
-        field: "참여자",
-        plan: "관심 분야와 제작할 스킬은 확인되는 대로 채웁니다.",
-        skill: null,
+        field: "교육",
+        plan: "학교 견적서 품의와 교수·학습 및 평가계획 작성을 돕는 선생님용 스킬",
+        skills: ["quote-to-pumui", "pyeongga-gyehoek-hwpx"],
       },
       {
         name: "양근탁",
-        field: "참여자",
-        plan: "관심 분야와 제작할 스킬은 확인되는 대로 채웁니다.",
-        skill: null,
+        field: "기업",
+        plan: "견적서 발행과 발행대장·매출 장부 관리를 한 번에 처리하는 스킬",
+        skills: ["quote-issue"],
       },
     ],
     weeks: [
@@ -121,10 +124,15 @@ window.cohorts = [
         summary: [
           "최종 파일을 제출하고, 스킬로 만든 결과물 캡처를 함께 정리합니다.",
         ],
-        pendingNote: "최종 스킬과 결과물은 스킬 목록과 결과물 페이지에 연결합니다.",
+        pendingNote: "회의록이 올라오면 이 자리에 정리합니다. 참여자 4명이 제출한 스킬 5개와 결과물은 스킬 목록과 결과물 페이지에 연결했습니다.",
       },
     ],
     skills: [
+      "case-to-project",
+      "quote-issue",
+      "vibe-spec",
+      "quote-to-pumui",
+      "pyeongga-gyehoek-hwpx",
       "public-bid-proposal",
       "md-to-hwpx",
       "meeting-notes",
@@ -132,10 +140,13 @@ window.cohorts = [
       "public-work",
       "education-support",
       "ministry-feedback",
-      "marketing-research",
-      "design-support",
     ],
     results: [
+      "case-to-project-memos",
+      "case-to-project-no-topic",
+      "quote-issue-sample",
+      "vibe-plan",
+      "lecture-report",
       "proposal",
       "presentation",
       "script",
@@ -147,7 +158,8 @@ window.cohorts = [
     ],
     notes: [
       "정기 모임 요일·시간은 1주차 회의록의 결정 칸이 비어 있어 확정 일정으로 안내하지 않습니다.",
-      "공유 스킬 2개는 1기 시작 시점에 제공된 파일이며, 모든 모델에서 최종 검수했다는 뜻은 아닙니다.",
+      "공유 스킬 중 2개는 1기 시작 시점에 제공된 파일이고, 5개는 참여자가 만들어 제출한 스킬입니다. 모든 모델에서 최종 검수했다는 뜻은 아닙니다.",
+      "참여자 스킬과 결과물은 제출된 내용을 그대로 올렸습니다. 공개용으로 회사 정보·직인·연락처, 수강생 사진과 서명만 가렸습니다.",
     ],
   },
 ];
